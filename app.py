@@ -2,14 +2,16 @@ import streamlit as st
 import pandas as pd
 import psycopg2
 
-# --- 1. CONFIGURACIÓN VISUAL: PALETA Y2K CORREGIDA SIN NEGROS NI ROJOS ---
+# --- 1. CONFIGURACIÓN VISUAL: PALETA Y2K LIMPIA SIN RECUADROS NEGROS ---
 st.set_page_config(page_title="Kathraoke 2000", page_icon="🎤", layout="centered")
 
 st.markdown("""
     <style>
-    /* Evitar el resaltado negro/azul nativo de los móviles al tocar cualquier elemento */
+    /* Desactivar cualquier resaltado o recuadro negro nativo en móviles */
     * {
         -webkit-tap-highlight-color: transparent !important;
+        -webkit-focus-ring-color: transparent !important;
+        outline: none !important;
     }
 
     /* Fondo con degradado difuminado tipo Holi moderno y suave */
@@ -27,11 +29,11 @@ st.markdown("""
         100% { background-position: 0% 50%; }
     }
 
-    /* Título principal */
+    /* Título principal con sombra suave */
     h1 { 
-        color: #ff3399 !important; 
+        color: #1a0066 !important; 
         text-align: center !important; 
-        text-shadow: 2px 2px 6px #00ffff, -2px -2px 6px #fff !important; 
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.1) !important; 
         font-weight: 900 !important;
         font-size: 24px !important;
         margin-top: -40px !important;
@@ -39,42 +41,50 @@ st.markdown("""
         padding-bottom: 0px !important;
     }
 
-    /* Textos de etiquetas globales y encima de los inputs */
+    /* Textos de etiquetas globales */
     div[data-testid="stWidgetLabel"] p, label, .stMarkdown p, .stText, p, span {
         color: #1a0066 !important;
         font-weight: bold !important;
     }
 
-    /* SOLUCIÓN AL ROJO DE LOS TICKS: Cambiar a Rosa Chicle */
-    div[data-testid="stCheckbox"] input[type="checkbox"]:checked ~ div {
-        background-color: #ff3399 !important;
-        border-color: #ff3399 !important;
-    }
-    div[data-testid="stCheckbox"] span[data-baseweb="checkbox"] > div {
-        background-color: #ff3399 !important;
-        border-color: #ff3399 !important;
-    }
-
-    /* Contenedor del panel expandible */
+    /* SOLUCIÓN DEFINITIVA AL RECUADRO NEGRO DEL DESPLEGABLE (EXPANDER) */
     div[data-testid="stExpander"] {
-        background: rgba(255, 255, 255, 0.5) !important;
+        background: rgba(255, 255, 255, 0.6) !important;
         border: 1px solid #b3ccff !important;
         border-radius: 12px !important;
     }
     
-    div[data-testid="stExpander"] details summary p,
-    div[data-testid="stExpander"] details[open] summary p,
-    .stExpander h2, .stExpander span {
+    /* Forzar que la barra del desplegable NUNCA se vuelva negra ni cambie de color al tocarla */
+    div[data-testid="stExpander"] summary,
+    div[data-testid="stExpander"] details,
+    div[data-testid="stExpander"] details summary,
+    div[data-testid="stExpander"] details[open] summary,
+    div[data-testid="stExpander"] summary:hover,
+    div[data-testid="stExpander"] summary:focus,
+    div[data-testid="stExpander"] summary:active {
+        background-color: transparent !important;
+        background: transparent !important;
         color: #1a0066 !important;
+        outline: none !important;
+        box-shadow: none !important;
     }
     
-    /* Evitar que se vuelva negra la zona superior del expander al tocarlo */
-    div[data-testid="stExpander"] summary {
-        background: transparent !important;
-        outline: none !important;
+    div[data-testid="stExpander"] details summary p,
+    div[data-testid="stExpander"] details[open] summary p {
+        color: #1a0066 !important;
     }
 
-    /* Tarjetas de canciones */
+    /* CORRECCIÓN DE LOS TICKS: Cambiados a un azul índigo suave y estético */
+    div[data-testid="stCheckbox"] input[type="checkbox"]:checked ~ div {
+        background-color: #4d88ff !important;
+        border-color: #4d88ff !important;
+    }
+    div[data-testid="stCheckbox"] span[data-baseweb="checkbox"] > div {
+        background-color: #4d88ff !important;
+        border-color: #4d88ff !important;
+    }
+
+    /* Tarjetas de canciones de la lista */
     .song-card {
         background: rgba(255, 255, 255, 0.7) !important;
         backdrop-filter: blur(10px) !important;
@@ -92,7 +102,7 @@ st.markdown("""
     .song-title { color: #2b0080 !important; font-size: 14px !important; font-weight: bold !important; }
     .song-artist { color: #555555 !important; font-size: 12px !important; }
 
-    /* Etiquetas de las canciones */
+    /* Etiquetas internas de canciones */
     .tag {
         display: inline-block !important;
         background: linear-gradient(90deg, #3385ff, #00ccff) !important;
@@ -102,17 +112,16 @@ st.markdown("""
         font-size: 10px !important;
         font-weight: bold !important;
     }
-    .tag-modo { background: linear-gradient(90deg, #ff3399, #ff99cc) !important; }
+    .tag-modo { background: linear-gradient(90deg, #b3ccff, #80aaff) !important; color: #1a0066 !important; }
 
-    /* SOLUCIÓN AL TEXTO DEL BUSCADOR: Forzar que el texto escrito sea oscuro y legible */
+    /* Buscador e Inputs con letras oscuras totalmente legibles */
     .stTextInput>div>div>input {
         background: rgba(255, 255, 255, 0.9) !important;
-        border: 1px solid #ff99cc !important;
-        color: #1a0066 !important; /* Texto oscuro al escribir */
+        border: 1px solid #b3ccff !important;
+        color: #1a0066 !important; 
         border-radius: 12px !important;
     }
     
-    /* Asegurar color de texto dentro del input enfocado en móviles */
     .stTextInput input:focus {
         color: #1a0066 !important;
         background-color: #ffffff !important;
@@ -190,7 +199,7 @@ else:
     query_filtrada = df_completo[
         (df_completo["titulo"].str.contains(buscar, case=False) | df_completo["artista"].str.contains(buscar, case=False)) &
         (df_completo["modo"].isin(filtro_modo)) &
-        (df_completo["genero"].isin(filgro_genero) if 'filgro_genero' in locals() else df_completo["genero"].isin(filtro_genero))
+        (df_completo["genero"].isin(filtro_genero))
     ]
     
     if not query_filtrada.empty:
