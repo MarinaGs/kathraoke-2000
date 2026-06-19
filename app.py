@@ -98,12 +98,27 @@ st.markdown("""
         font-weight: bold !important;
     }
 
-    /* Entrada de texto del buscador */
-    .stTextInput>div>div>input {
-        background: rgba(255, 255, 255, 0.9) !important;
+    /* SOLUCCIÓN AL RECUADRO GRIS Y LETRAS BLANCAS DEL BUSCADOR */
+    .stTextInput>div>div {
+        background-color: #ffffff !important;
+        border-radius: 12px !important;
+    }
+    
+    .stTextInput input {
+        background-color: #ffffff !important;
         border: 1px solid #b3ccff !important;
         color: #1a0066 !important; 
         border-radius: 12px !important;
+    }
+    
+    .stTextInput input::placeholder {
+        color: #80aaff !important;
+        opacity: 1 !important;
+    }
+    
+    .stTextInput input:focus {
+        color: #1a0066 !important;
+        background-color: #ffffff !important;
     }
     
     hr {
