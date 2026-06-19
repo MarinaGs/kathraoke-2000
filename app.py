@@ -2,12 +2,12 @@ import streamlit as st
 import pandas as pd
 import psycopg2
 
-# --- 1. CONFIGURACIÓN VISUAL: PALETA Y2K LIMPIA SIN RECUADROS NEGROS ---
+# --- 1. CONFIGURACIÓN VISUAL: REVISIÓN DE COLORES DE ETIQUETAS Y TICKS ---
 st.set_page_config(page_title="Kathraoke 2000", page_icon="🎤", layout="centered")
 
 st.markdown("""
     <style>
-    /* Desactivar cualquier resaltado o recuadro negro nativo en móviles */
+    /* Desactivar resaltados negros nativos en móviles */
     * {
         -webkit-tap-highlight-color: transparent !important;
         -webkit-focus-ring-color: transparent !important;
@@ -38,7 +38,6 @@ st.markdown("""
         font-size: 24px !important;
         margin-top: -40px !important;
         margin-bottom: 10px !important;
-        padding-bottom: 0px !important;
     }
 
     /* Textos de etiquetas globales */
@@ -47,41 +46,28 @@ st.markdown("""
         font-weight: bold !important;
     }
 
-    /* SOLUCIÓN DEFINITIVA AL RECUADRO NEGRO DEL DESPLEGABLE (EXPANDER) */
+    /* Contenedor del panel expandible */
     div[data-testid="stExpander"] {
         background: rgba(255, 255, 255, 0.6) !important;
         border: 1px solid #b3ccff !important;
         border-radius: 12px !important;
     }
     
-    /* Forzar que la barra del desplegable NUNCA se vuelva negra ni cambie de color al tocarla */
     div[data-testid="stExpander"] summary,
-    div[data-testid="stExpander"] details,
     div[data-testid="stExpander"] details summary,
-    div[data-testid="stExpander"] details[open] summary,
-    div[data-testid="stExpander"] summary:hover,
-    div[data-testid="stExpander"] summary:focus,
-    div[data-testid="stExpander"] summary:active {
+    div[data-testid="stExpander"] details[open] summary {
         background-color: transparent !important;
-        background: transparent !important;
-        color: #1a0066 !important;
-        outline: none !important;
-        box-shadow: none !important;
-    }
-    
-    div[data-testid="stExpander"] details summary p,
-    div[data-testid="stExpander"] details[open] summary p {
         color: #1a0066 !important;
     }
 
-    /* CORRECCIÓN DE LOS TICKS: Cambiados a un azul índigo suave y estético */
+    /* SOLUCIÓN AL TICK ROJO: Cambiado al color índigo corporativo suave */
     div[data-testid="stCheckbox"] input[type="checkbox"]:checked ~ div {
-        background-color: #4d88ff !important;
-        border-color: #4d88ff !important;
+        background-color: #1a0066 !important;
+        border-color: #1a0066 !important;
     }
     div[data-testid="stCheckbox"] span[data-baseweb="checkbox"] > div {
-        background-color: #4d88ff !important;
-        border-color: #4d88ff !important;
+        background-color: #1a0066 !important;
+        border-color: #1a0066 !important;
     }
 
     /* Tarjetas de canciones de la lista */
@@ -102,17 +88,17 @@ st.markdown("""
     .song-title { color: #2b0080 !important; font-size: 14px !important; font-weight: bold !important; }
     .song-artist { color: #555555 !important; font-size: 12px !important; }
 
-    /* Etiquetas internas de canciones */
-    .tag {
+    /* SOLUCIÓN ADIÓS AL AZUL: Etiquetas con fondo blanco translúcido y texto índigo */
+    .tag, .tag-modo {
         display: inline-block !important;
-        background: linear-gradient(90deg, #3385ff, #00ccff) !important;
-        color: white !important;
+        background: rgba(255, 255, 255, 0.8) !important;
+        color: #1a0066 !important;
         padding: 3px 8px !important;
         border-radius: 20px !important;
-        font-size: 10px !important;
+        border: 1px solid #b3ccff !important;
+        font-size: 11px !important;
         font-weight: bold !important;
     }
-    .tag-modo { background: linear-gradient(90deg, #b3ccff, #80aaff) !important; color: #1a0066 !important; }
 
     /* Buscador e Inputs con letras oscuras totalmente legibles */
     .stTextInput>div>div>input {
