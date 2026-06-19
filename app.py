@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import psycopg2
 
-# --- 1. CONFIGURACIÓN VISUAL: DEGRADADO HOLI ANIMADO + LISTA COMPACTA Y2K ---
+# --- 1. CONFIGURACIÓN VISUAL: DEGRADADO HOLI ANIMADO OPTIMIZADO PARA MÓVIL ---
 st.set_page_config(page_title="Kathraoke 2000", page_icon="🎤", layout="centered")
 
 st.markdown("""
@@ -22,29 +22,36 @@ st.markdown("""
         100% { background-position: 0% 50%; }
     }
 
-    /* Título estilo 2000s con sombra brillante */
+    /* Título estilo 2000s optimizado para móvil (menos espacio y tamaño adaptado) */
     h1 { 
         color: #ff007f !important; 
         text-align: center; 
-        text-shadow: 2px 2px 8px #00ffff, -2px -2px 8px #fff; 
+        text-shadow: 2px 2px 6px #00ffff, -2px -2px 6px #fff; 
         font-weight: 900;
-        font-size: 32px !important;
+        font-size: 24px !important; /* Más pequeño para que entre en una línea */
         letter-spacing: 1px;
-        margin-bottom: 20px;
+        margin-top: -40px !important; /* Reduce el espacio superior muerto de Streamlit */
+        margin-bottom: 10px !important;
+        padding-bottom: 0px !important;
     }
 
+    /* SOLUCIÓN AL TEXTO BLANCO/INVISIBLE: Forzar color oscuro en etiquetas e inputs */
+    label, .stMarkdown p, .stText, p {
+        color: #1a0066 !important;
+        font-weight: bold !important;
+    }
+    
     /* Tarjeta compacta en una sola línea estilo lista de reproducción */
     .song-card {
-        background: rgba(255, 255, 255, 0.6);
+        background: rgba(255, 255, 255, 0.7);
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
-        padding: 10px 14px;
+        padding: 8px 12px;
+        margin-bottom: 6px;
         border-radius: 10px;
-        margin-bottom: 8px;
         border: 1px solid rgba(255, 255, 255, 0.5);
         box-shadow: 0 4px 15px rgba(31, 38, 135, 0.04);
         
-        /* Alineación en una sola línea */
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -54,24 +61,24 @@ st.markdown("""
         display: flex;
         flex-direction: column;
         flex-grow: 1;
-        padding-right: 10px;
+        padding-right: 8px;
     }
     
     .song-title {
-        font-size: 16px;
+        font-size: 14px;
         font-weight: bold;
         color: #2b0080;
     }
     
     .song-artist {
-        font-size: 13px;
+        font-size: 12px;
         color: #444444;
-        margin-top: 2px;
+        margin-top: 1px;
     }
 
     .song-tags {
         display: flex;
-        gap: 6px;
+        gap: 4px;
         flex-shrink: 0;
     }
 
@@ -79,24 +86,29 @@ st.markdown("""
     .tag {
         display: inline-block;
         background: linear-gradient(90deg, #0055ff, #00bfff);
-        color: white;
-        padding: 4px 10px;
+        color: white !important; /* Aquí sí queremos texto blanco */
+        padding: 3px 8px;
         border-radius: 20px;
-        font-size: 11px;
+        font-size: 10px;
         font-weight: bold;
-        box-shadow: 0 2px 5px rgba(0,85,255,0.15);
     }
     
     .tag-modo {
         background: linear-gradient(90deg, #ff007f, #ff66cc);
-        box-shadow: 0 2px 5px rgba(255,0,127,0.15);
     }
 
-    /* Inputs y botones de Streamlit estilizados */
+    /* Inputs de texto estilizados con texto oscuro legible */
     .stTextInput>div>div>input {
-        background: rgba(255,255,255,0.8) !important;
+        background: rgba(255, 255, 255, 0.9) !important;
         border-radius: 12px !important;
         border: 1px solid #ff66cc !important;
+        color: #1a0066 !important;
+    }
+    
+    /* Reducir espacio de la línea divisoria */
+    hr {
+        margin-top: 10px !important;
+        margin-bottom: 10px !important;
     }
     </style>
     """, unsafe_allow_html=True)
