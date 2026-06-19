@@ -2,12 +2,12 @@ import streamlit as st
 import pandas as pd
 import psycopg2
 
-# --- 1. CONFIGURACIÓN VISUAL: PARCHE TOTAL ANTI-CACHÉ Y MENÚS MÓVILES ---
+# --- 1. CONFIGURACIÓN VISUAL: PALETA Y2K OPTIMIZADA PARA MÓVILES ---
 st.set_page_config(page_title="Kathraoke 2000", page_icon="🎤", layout="centered")
 
 st.markdown("""
     <style>
-    /* Fondo e interfaz base */
+    /* Fondo con degradado difuminado tipo Holi moderno y suave */
     .stApp { 
         background: linear-gradient(135deg, #ffe6f2 0%, #e6f0ff 50%, #f0e6ff 100%) !important;
         background-size: 400% 400% !important;
@@ -34,72 +34,31 @@ st.markdown("""
         padding-bottom: 0px !important;
     }
 
-    /* Textos de etiquetas globales y encima de inputs */
+    /* Textos de etiquetas globales y encima de los inputs */
     div[data-testid="stWidgetLabel"] p, label, .stMarkdown p, .stText, p, span {
         color: #1a0066 !important;
         font-weight: bold !important;
     }
 
-    /* PARCHE ULTRA-ESPECÍFICO PARA LAS LISTAS DESPLEGABLES INTERNAS EN MÓVIL */
-    /* Limpia el fondo negro de los menús flotantes que genera Streamlit por fuera */
-    div[data-baseweb="popover"] *, 
-    div[data-baseweb="menu"] *, 
-    ul[role="listbox"] *,
-    li[role="option"] * {
-        background-color: #ffffff !important;
+    /* Color de las casillas de verificación (Checkboxes) para evitar negros */
+    div[data-testid="stCheckbox"] label span {
         color: #1a0066 !important;
     }
 
-    /* Fondo de la caja de la lista desplegable */
-    div[data-baseweb="menu"], ul[role="listbox"] {
-        background-color: #ffffff !important;
-        border: 2px solid #b3ccff !important;
-        border-radius: 8px !important;
-    }
-
-    /* Cuando se pasa el dedo o se selecciona una opción en el móvil */
-    li[role="option"]:hover, li[data-highlighted="true"], li[role="option"]:active {
-        background-color: #e6f0ff !important;
-        color: #ff3399 !important;
-    }
-
-    /* Contenedor del filtro (Multiselect) en reposo */
-    div[data-baseweb="select"] {
-        background: rgba(255, 255, 255, 0.9) !important;
-        border-radius: 8px !important;
-    }
-
-    /* Los chips (etiquetas) de las opciones que ya se han seleccionado */
-    span[data-baseweb="tag"] {
-        background-color: #d1e2ff !important;
-        color: #1a0066 !important;
-        border-radius: 6px !important;
-    }
-    
-    span[data-baseweb="tag"] role[button], span[data-baseweb="tag"] svg {
-        fill: #1a0066 !important;
-    }
-
-    /* PARCHE PARA EVITAR EL NEGRO EN EL PROPIO DESPLEGABLE (EXPANDER) */
-    div[data-testid="stExpander"] details summary p,
-    div[data-testid="stExpander"] details[open] summary p,
-    div[data-testid="stExpander"]:focus-within summary p,
-    .stExpander h2, .stExpander span {
-        color: #1a0066 !important;
-    }
-    
-    div[data-testid="stExpander"] summary:focus {
-        outline: none !important;
-    }
-
-    /* Contenedor del bloque Expander */
+    /* Contenedor del panel expandible */
     div[data-testid="stExpander"] {
-        background: rgba(255, 255, 255, 0.4) !important;
+        background: rgba(255, 255, 255, 0.5) !important;
         border: 1px solid #b3ccff !important;
         border-radius: 12px !important;
     }
+    
+    div[data-testid="stExpander"] details summary p,
+    div[data-testid="stExpander"] details[open] summary p,
+    .stExpander h2, .stExpander span {
+        color: #1a0066 !important;
+    }
 
-    /* Tarjetas de canciones de la lista */
+    /* Tarjetas de canciones */
     .song-card {
         background: rgba(255, 255, 255, 0.7) !important;
         backdrop-filter: blur(10px) !important;
@@ -184,8 +143,21 @@ with st.expander("🎛️ Filtrar por Género o Modo"):
         modos_disponibles = ["Solitario", "Dúo", "Fiesta"]
         generos_disponibles = ["Pop", "Rock", "Reggaetón", "Latino"]
 
-    filtro_modo = st.multiselect("👥 Modo de canto:", options=modos_disponibles, default=modos_disponibles)
-    filtro_genero = st.multiselect("🎸 Género musical:", options=generos_disponibles, default=generos_disponibles)
+    st.write("👥 **Modo de canto:**")
+    filtro_modo = []
+    col1, col2, col3 = st.columns(3)
+    for i, m in enumerate(modos_disponibles):
+        target_col = [col1, col2, col3][i % 3]
+        if target_col.checkbox(m, value=True, key=f"modo_{m}"):
+            filtro_modo.append(m)
+
+    st.write("🎸 **Género musical:**")
+    filtro_genero = []
+    cols = st.columns(2)
+    for i, g in enumerate(generos_disponibles):
+        target_col = cols[i % 2]
+        if target_col.checkbox(g, value=True, key=f"gen_{g}"):
+            filtro_genero.append(g)
 
 st.markdown("---")
 
