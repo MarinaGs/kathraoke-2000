@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import psycopg2
 
-# --- 1. CONFIGURACIÓN VISUAL: DEGRADADO HOLI ANIMADO OPTIMIZADO PARA MÓVIL ---
+# --- 1. CONFIGURACIÓN VISUAL: PALETA DE COLORES Y2K CON TEXTOS VISIBLES ---
 st.set_page_config(page_title="Kathraoke 2000", page_icon="🎤", layout="centered")
 
 st.markdown("""
@@ -22,26 +22,34 @@ st.markdown("""
         100% { background-position: 0% 50%; }
     }
 
-    /* Título estilo 2000s optimizado para móvil (menos espacio y tamaño adaptado) */
+    /* Título estilo 2000s optimizado con sombras aqua y rosa */
     h1 { 
-        color: #ff007f !important; 
+        color: #ff3399 !important; 
         text-align: center; 
         text-shadow: 2px 2px 6px #00ffff, -2px -2px 6px #fff; 
         font-weight: 900;
-        font-size: 24px !important; /* Más pequeño para que entre en una línea */
+        font-size: 24px !important;
         letter-spacing: 1px;
-        margin-top: -40px !important; /* Reduce el espacio superior muerto de Streamlit */
+        margin-top: -40px !important;
         margin-bottom: 10px !important;
         padding-bottom: 0px !important;
     }
 
-    /* SOLUCIÓN AL TEXTO BLANCO/INVISIBLE: Forzar color oscuro en etiquetas e inputs */
-    label, .stMarkdown p, .stText, p {
+    /* SOLUCIÓN DEFINITIVA PARA LOS TEXTOS EN BLANCO ENCIMA DE LOS INPUTS */
+    div[data-testid="stWidgetLabel"] p, label, .stMarkdown p, .stText, p {
         color: #1a0066 !important;
         font-weight: bold !important;
+        font-size: 14px !important;
+    }
+
+    /* Estilo para los desplegables (Expander) */
+    .stContentBlock, div[data-testid="stExpander"] {
+        background: rgba(255, 255, 255, 0.4) !important;
+        border: 1px solid #b3ccff !important;
+        border-radius: 12px !important;
     }
     
-    /* Tarjeta compacta en una sola línea estilo lista de reproducción */
+    /* Tarjeta compacta de canción estilo lista de reproducción */
     .song-card {
         background: rgba(255, 255, 255, 0.7);
         backdrop-filter: blur(10px);
@@ -49,8 +57,8 @@ st.markdown("""
         padding: 8px 12px;
         margin-bottom: 6px;
         border-radius: 10px;
-        border: 1px solid rgba(255, 255, 255, 0.5);
-        box-shadow: 0 4px 15px rgba(31, 38, 135, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        box-shadow: 0 4px 15px rgba(179, 204, 255, 0.2);
         
         display: flex;
         justify-content: space-between;
@@ -72,7 +80,7 @@ st.markdown("""
     
     .song-artist {
         font-size: 12px;
-        color: #444444;
+        color: #555555;
         margin-top: 1px;
     }
 
@@ -82,11 +90,11 @@ st.markdown("""
         flex-shrink: 0;
     }
 
-    /* Etiquetas neón de los filtros */
+    /* Etiquetas de las canciones */
     .tag {
         display: inline-block;
-        background: linear-gradient(90deg, #0055ff, #00bfff);
-        color: white !important; /* Aquí sí queremos texto blanco */
+        background: linear-gradient(90deg, #3385ff, #00ccff);
+        color: white !important;
         padding: 3px 8px;
         border-radius: 20px;
         font-size: 10px;
@@ -94,19 +102,25 @@ st.markdown("""
     }
     
     .tag-modo {
-        background: linear-gradient(90deg, #ff007f, #ff66cc);
+        background: linear-gradient(90deg, #ff3399, #ff99cc);
     }
 
-    /* Inputs de texto estilizados con texto oscuro legible */
+    /* Buscador e Inputs: Bordes rosa pastel y texto interior oscuro */
     .stTextInput>div>div>input {
         background: rgba(255, 255, 255, 0.9) !important;
         border-radius: 12px !important;
-        border: 1px solid #ff66cc !important;
+        border: 1px solid #ff99cc !important;
         color: #1a0066 !important;
     }
+
+    /* Estilo para los multiselectores (filtros) */
+    div[data-baseweb="select"] {
+        background: rgba(255, 255, 255, 0.9) !important;
+        border-radius: 8px !important;
+    }
     
-    /* Reducir espacio de la línea divisoria */
     hr {
+        border-top: 1px solid #e6f0ff !important;
         margin-top: 10px !important;
         margin-bottom: 10px !important;
     }
