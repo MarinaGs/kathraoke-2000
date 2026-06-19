@@ -2,11 +2,16 @@ import streamlit as st
 import pandas as pd
 import psycopg2
 
-# --- 1. CONFIGURACIÓN VISUAL: PALETA Y2K OPTIMIZADA PARA MÓVILES ---
+# --- 1. CONFIGURACIÓN VISUAL: PALETA Y2K CORREGIDA SIN NEGROS NI ROJOS ---
 st.set_page_config(page_title="Kathraoke 2000", page_icon="🎤", layout="centered")
 
 st.markdown("""
     <style>
+    /* Evitar el resaltado negro/azul nativo de los móviles al tocar cualquier elemento */
+    * {
+        -webkit-tap-highlight-color: transparent !important;
+    }
+
     /* Fondo con degradado difuminado tipo Holi moderno y suave */
     .stApp { 
         background: linear-gradient(135deg, #ffe6f2 0%, #e6f0ff 50%, #f0e6ff 100%) !important;
@@ -40,9 +45,14 @@ st.markdown("""
         font-weight: bold !important;
     }
 
-    /* Color de las casillas de verificación (Checkboxes) para evitar negros */
-    div[data-testid="stCheckbox"] label span {
-        color: #1a0066 !important;
+    /* SOLUCIÓN AL ROJO DE LOS TICKS: Cambiar a Rosa Chicle */
+    div[data-testid="stCheckbox"] input[type="checkbox"]:checked ~ div {
+        background-color: #ff3399 !important;
+        border-color: #ff3399 !important;
+    }
+    div[data-testid="stCheckbox"] span[data-baseweb="checkbox"] > div {
+        background-color: #ff3399 !important;
+        border-color: #ff3399 !important;
     }
 
     /* Contenedor del panel expandible */
@@ -56,6 +66,12 @@ st.markdown("""
     div[data-testid="stExpander"] details[open] summary p,
     .stExpander h2, .stExpander span {
         color: #1a0066 !important;
+    }
+    
+    /* Evitar que se vuelva negra la zona superior del expander al tocarlo */
+    div[data-testid="stExpander"] summary {
+        background: transparent !important;
+        outline: none !important;
     }
 
     /* Tarjetas de canciones */
@@ -76,7 +92,7 @@ st.markdown("""
     .song-title { color: #2b0080 !important; font-size: 14px !important; font-weight: bold !important; }
     .song-artist { color: #555555 !important; font-size: 12px !important; }
 
-    /* Etiquetas neón estáticas de las canciones */
+    /* Etiquetas de las canciones */
     .tag {
         display: inline-block !important;
         background: linear-gradient(90deg, #3385ff, #00ccff) !important;
@@ -88,12 +104,18 @@ st.markdown("""
     }
     .tag-modo { background: linear-gradient(90deg, #ff3399, #ff99cc) !important; }
 
-    /* Buscador e Inputs generales */
+    /* SOLUCIÓN AL TEXTO DEL BUSCADOR: Forzar que el texto escrito sea oscuro y legible */
     .stTextInput>div>div>input {
         background: rgba(255, 255, 255, 0.9) !important;
         border: 1px solid #ff99cc !important;
-        color: #1a0066 !important;
+        color: #1a0066 !important; /* Texto oscuro al escribir */
         border-radius: 12px !important;
+    }
+    
+    /* Asegurar color de texto dentro del input enfocado en móviles */
+    .stTextInput input:focus {
+        color: #1a0066 !important;
+        background-color: #ffffff !important;
     }
     
     hr {
@@ -168,7 +190,7 @@ else:
     query_filtrada = df_completo[
         (df_completo["titulo"].str.contains(buscar, case=False) | df_completo["artista"].str.contains(buscar, case=False)) &
         (df_completo["modo"].isin(filtro_modo)) &
-        (df_completo["genero"].isin(filtro_genero))
+        (df_completo["genero"].isin(filgro_genero) if 'filgro_genero' in locals() else df_completo["genero"].isin(filtro_genero))
     ]
     
     if not query_filtrada.empty:
