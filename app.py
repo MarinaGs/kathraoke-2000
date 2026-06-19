@@ -1,8 +1,9 @@
+
 import streamlit as st
 import pandas as pd
 import psycopg2
 
-# --- 1. CONFIGURACIÓN VISUAL: PALETA DE COLORES Y2K CON FILTROS CORREGIDOS ---
+# --- 1. CONFIGURACIÓN VISUAL: PALETA Y2K CON PARCHE PARA ENFOQUE MÓVIL ---
 st.set_page_config(page_title="Kathraoke 2000", page_icon="🎤", layout="centered")
 
 st.markdown("""
@@ -42,29 +43,40 @@ st.markdown("""
         font-size: 14px !important;
     }
 
-    /* SOLUCIÓN DE FILTROS: Forzar colores de los selectores dinámicos de Streamlit */
+    /* PARCHE PARA EVITAR EL NEGRO EN MÓVILES AL TOCAR EL DESPLEGABLE */
+    div[data-testid="stExpander"] details summary p,
+    div[data-testid="stExpander"] details[open] summary p,
+    div[data-testid="stExpander"]:focus-within summary p,
+    .stExpander h2, .stExpander span {
+        color: #1a0066 !important;
+    }
+
+    /* Contenedor del desplegable (Expander) */
+    .stContentBlock, div[data-testid="stExpander"] {
+        background: rgba(255, 255, 255, 0.4) !important;
+        border: 1px solid #b3ccff !important;
+        border-radius: 12px !important;
+    }
+    
+    /* Evitar bordes negros feos de enfoque nativo del móvil */
+    div[data-testid="stExpander"] summary:focus {
+        outline: none !important;
+    }
+    
+    /* Filtros (Multiselect) */
     div[data-baseweb="select"] {
         background: rgba(255, 255, 255, 0.9) !important;
         border-radius: 8px !important;
     }
     
-    /* Cambiar el color de los elementos seleccionados dentro del filtro (Multiselect) */
     span[data-baseweb="tag"] {
-        background-color: #d1e2ff !important; /* Azul pastel */
-        color: #1a0066 !important; /* Texto oscuro legible */
+        background-color: #d1e2ff !important;
+        color: #1a0066 !important;
         border-radius: 6px !important;
     }
     
-    /* Color de la X para eliminar un filtro */
     span[data-baseweb="tag"] role[button], span[data-baseweb="tag"] svg {
         fill: #1a0066 !important;
-    }
-
-    /* Estilo para el contenedor desplegable (Expander) */
-    .stContentBlock, div[data-testid="stExpander"] {
-        background: rgba(255, 255, 255, 0.4) !important;
-        border: 1px solid #b3ccff !important;
-        border-radius: 12px !important;
     }
     
     /* Tarjeta compacta de canción estilo lista de reproducción */
@@ -108,7 +120,7 @@ st.markdown("""
         flex-shrink: 0;
     }
 
-    /* Etiquetas internas de las canciones en la lista */
+    /* Etiquetas internas de las canciones */
     .tag {
         display: inline-block;
         background: linear-gradient(90deg, #3385ff, #00ccff);
@@ -221,17 +233,3 @@ with st.expander("🔒 Panel de Administrador"):
         nuevo_artista = st.text_input("Artista:")
         nuevo_modo = st.selectbox("Modo:", ["Solitario", "Dúo", "Fiesta"])
         nuevo_genero = st.text_input("Género:")
-        
-        if st.button("Añadir al repertorio"):
-            if nuevo_titulo and nuevo_artista:
-                conn = obtener_conexion()
-                cursor = conn.cursor()
-                cursor.execute("INSERT INTO canciones (titulo, artista, modo, genero) VALUES (%s, %s, %s, %s)",
-                               (nuevo_titulo, nuevo_artista, nuevo_modo, nuevo_genero))
-                conn.commit()
-                cursor.close()
-                conn.close()
-                st.success("¡Guardada!")
-                st.rerun()
-    elif password != "":
-        st.error("Contraseña incorrecta")
