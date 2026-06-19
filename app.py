@@ -2,19 +2,20 @@ import streamlit as st
 import pandas as pd
 import psycopg2
 
-# --- 1. CONFIGURACIÓN VISUAL: REVISIÓN DE COLORES DE ETIQUETAS Y TICKS ---
+# --- 1. CONFIGURACIÓN VISUAL: DISEÑO COMPATIBLE 100% MÓVIL ---
 st.set_page_config(page_title="Kathraoke 2000", page_icon="🎤", layout="centered")
 
 st.markdown("""
     <style>
-    /* Desactivar resaltados negros nativos en móviles */
+    /* Bloqueo absoluto de estilos intrusivos de los navegadores móviles */
     * {
         -webkit-tap-highlight-color: transparent !important;
         -webkit-focus-ring-color: transparent !important;
         outline: none !important;
+        box-shadow: none !important;
     }
 
-    /* Fondo con degradado difuminado tipo Holi moderno y suave */
+    /* Fondo degradado suave */
     .stApp { 
         background: linear-gradient(135deg, #ffe6f2 0%, #e6f0ff 50%, #f0e6ff 100%) !important;
         background-size: 400% 400% !important;
@@ -29,7 +30,6 @@ st.markdown("""
         100% { background-position: 0% 50%; }
     }
 
-    /* Título principal con sombra suave */
     h1 { 
         color: #1a0066 !important; 
         text-align: center !important; 
@@ -40,37 +40,36 @@ st.markdown("""
         margin-bottom: 10px !important;
     }
 
-    /* Textos de etiquetas globales */
+    /* Forzar color de etiquetas y textos generales */
     div[data-testid="stWidgetLabel"] p, label, .stMarkdown p, .stText, p, span {
         color: #1a0066 !important;
         font-weight: bold !important;
     }
 
-    /* Contenedor del panel expandible */
+    /* Forzar que las cajas de selección (Selectbox) sean blancas con texto oscuro */
+    div[data-baseweb="select"] {
+        background-color: #ffffff !important;
+        border: 1px solid #b3ccff !important;
+        border-radius: 8px !important;
+    }
+    
+    div[data-baseweb="select"] * {
+        color: #1a0066 !important;
+        background-color: transparent !important;
+    }
+
+    /* Modificación del bloque expandible para evitar recuadros negros */
     div[data-testid="stExpander"] {
         background: rgba(255, 255, 255, 0.6) !important;
         border: 1px solid #b3ccff !important;
         border-radius: 12px !important;
     }
     
-    div[data-testid="stExpander"] summary,
-    div[data-testid="stExpander"] details summary,
-    div[data-testid="stExpander"] details[open] summary {
+    div[data-testid="stExpander"] summary {
         background-color: transparent !important;
-        color: #1a0066 !important;
     }
 
-    /* SOLUCIÓN AL TICK ROJO: Cambiado al color índigo corporativo suave */
-    div[data-testid="stCheckbox"] input[type="checkbox"]:checked ~ div {
-        background-color: #1a0066 !important;
-        border-color: #1a0066 !important;
-    }
-    div[data-testid="stCheckbox"] span[data-baseweb="checkbox"] > div {
-        background-color: #1a0066 !important;
-        border-color: #1a0066 !important;
-    }
-
-    /* Tarjetas de canciones de la lista */
+    /* Tarjetas de la lista de reproducción */
     .song-card {
         background: rgba(255, 255, 255, 0.7) !important;
         backdrop-filter: blur(10px) !important;
@@ -79,7 +78,6 @@ st.markdown("""
         margin-bottom: 6px !important;
         border-radius: 10px !important;
         border: 1px solid rgba(255, 255, 255, 0.6) !important;
-        box-shadow: 0 4px 15px rgba(179, 204, 255, 0.2) !important;
         display: flex !important;
         justify-content: space-between !important;
         align-items: center !important;
@@ -88,10 +86,10 @@ st.markdown("""
     .song-title { color: #2b0080 !important; font-size: 14px !important; font-weight: bold !important; }
     .song-artist { color: #555555 !important; font-size: 12px !important; }
 
-    /* SOLUCIÓN ADIÓS AL AZUL: Etiquetas con fondo blanco translúcido y texto índigo */
+    /* Etiquetas de canciones (Pop, Solitario, etc.) limpias y legibles */
     .tag, .tag-modo {
         display: inline-block !important;
-        background: rgba(255, 255, 255, 0.8) !important;
+        background-color: #ffffff !important;
         color: #1a0066 !important;
         padding: 3px 8px !important;
         border-radius: 20px !important;
@@ -100,17 +98,12 @@ st.markdown("""
         font-weight: bold !important;
     }
 
-    /* Buscador e Inputs con letras oscuras totalmente legibles */
+    /* Entrada de texto del buscador */
     .stTextInput>div>div>input {
         background: rgba(255, 255, 255, 0.9) !important;
         border: 1px solid #b3ccff !important;
         color: #1a0066 !important; 
         border-radius: 12px !important;
-    }
-    
-    .stTextInput input:focus {
-        color: #1a0066 !important;
-        background-color: #ffffff !important;
     }
     
     hr {
@@ -149,39 +142,38 @@ conn = obtener_conexion()
 df_completo = pd.read_sql_query("SELECT * FROM canciones", conn)
 conn.close()
 
-# --- 4. BUSCADOR Y FILTROS EN LA PÁGINA PRINCIPAL ---
+# --- 4. BUSCADOR Y FILTROS SIMPLIFICADOS ---
 buscar = st.text_input("✨ Busca tu temazo o artista favorito:", placeholder="Ej: Britney, Estopa, Daddy Yankee...")
 
 with st.expander("🎛️ Filtrar por Género o Modo"):
     if not df_completo.empty:
-        modos_disponibles = df_completo["modo"].unique().tolist()
-        generos_disponibles = df_completo["genero"].unique().tolist()
+        modos_disponibles = ["Todos"] + df_completo["modo"].unique().tolist()
+        generos_disponibles = ["Todos"] + df_completo["genero"].unique().tolist()
     else:
-        modos_disponibles = ["Solitario", "Dúo", "Fiesta"]
-        generos_disponibles = ["Pop", "Rock", "Reggaetón", "Latino"]
+        modos_disponibles = ["Todos", "Solitario", "Dúo", "Fiesta"]
+        generos_disponibles = ["Todos", "Pop", "Rock", "Reggaetón", "Latino"]
 
-    st.write("👥 **Modo de canto:**")
-    filtro_modo = []
-    col1, col2, col3 = st.columns(3)
-    for i, m in enumerate(modos_disponibles):
-        target_col = [col1, col2, col3][i % 3]
-        if target_col.checkbox(m, value=True, key=f"modo_{m}"):
-            filtro_modo.append(m)
-
-    st.write("🎸 **Género musical:**")
-    filtro_genero = []
-    cols = st.columns(2)
-    for i, g in enumerate(generos_disponibles):
-        target_col = cols[i % 2]
-        if target_col.checkbox(g, value=True, key=f"gen_{g}"):
-            filtro_genero.append(g)
+    # Usamos selectbox simples que no se rompen con los colores del móvil
+    seleccion_modo = st.selectbox("👥 Elige Modo de canto:", options=modos_disponibles)
+    seleccion_genero = st.selectbox("🎸 Elige Género musical:", options=generos_disponibles)
 
 st.markdown("---")
 
-# --- 5. MOSTRAR LISTA DE CANCIONES EN LÍNEAS COMPACTAS ---
+# --- 5. MOSTRAR LISTA DE CANCIONES ---
 if df_completo.empty:
     st.info("La lista está vacía. Desplázate abajo al Panel de Administrador para estrenar la base de datos.")
 else:
+    # Lógica de filtrado adaptada al selectbox ("Todos")
+    if seleccion_modo == "Todos":
+        filtro_modo = df_completo["modo"].unique().tolist()
+    else:
+        filtro_modo = [seleccion_modo]
+
+    if seleccion_genero == "Todos":
+        filtro_genero = df_completo["genero"].unique().tolist()
+    else:
+        filtro_genero = [seleccion_genero]
+
     query_filtrada = df_completo[
         (df_completo["titulo"].str.contains(buscar, case=False) | df_completo["artista"].str.contains(buscar, case=False)) &
         (df_completo["modo"].isin(filtro_modo)) &
@@ -214,8 +206,8 @@ with st.expander("🔒 Panel de Administrador"):
         st.success("Acceso autorizado")
         nuevo_titulo = st.text_input("Título de la canción:")
         nuevo_artista = st.text_input("Artista:")
-        nuevo_modo = st.selectbox("Modo:", ["Solitario", "Dúo", "Fiesta"])
-        nuevo_genero = st.text_input("Género:")
+        nuevo_modo = st.selectbox("Modo de canto (Admin):", ["Solitario", "Dúo", "Fiesta"])
+        nuevo_genero = st.text_input("Género musical (Admin):")
         
         if st.button("Añadir al repertorio"):
             if nuevo_titulo and nuevo_artista:
