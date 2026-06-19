@@ -1,9 +1,8 @@
-
 import streamlit as st
 import pandas as pd
 import psycopg2
 
-# --- 1. CONFIGURACIÓN VISUAL: PALETA Y2K CON PARCHE PARA ENFOQUE MÓVIL ---
+# --- 1. CONFIGURACIÓN VISUAL: DEGRADADO Y2K + FIX TOTAL PARA MENÚS DESPLEGABLES ---
 st.set_page_config(page_title="Kathraoke 2000", page_icon="🎤", layout="centered")
 
 st.markdown("""
@@ -43,7 +42,7 @@ st.markdown("""
         font-size: 14px !important;
     }
 
-    /* PARCHE PARA EVITAR EL NEGRO EN MÓVILES AL TOCAR EL DESPLEGABLE */
+    /* PARCHE PARA EVITAR EL NEGRO EN MÓVILES AL TOCAR EL DESPLEGABLE (EXPANDER) */
     div[data-testid="stExpander"] details summary p,
     div[data-testid="stExpander"] details[open] summary p,
     div[data-testid="stExpander"]:focus-within summary p,
@@ -58,17 +57,36 @@ st.markdown("""
         border-radius: 12px !important;
     }
     
-    /* Evitar bordes negros feos de enfoque nativo del móvil */
     div[data-testid="stExpander"] summary:focus {
         outline: none !important;
     }
     
-    /* Filtros (Multiselect) */
+    /* --- SOLUCIÓN DE FILTROS: LISTA FLOTANTE NEGRA CORREGIDA --- */
     div[data-baseweb="select"] {
         background: rgba(255, 255, 255, 0.9) !important;
         border-radius: 8px !important;
     }
     
+    /* Forzar el fondo blanco y texto oscuro de la lista de opciones que se despliega */
+    div[data-baseweb="menu"], ul[role="listbox"] {
+        background-color: #ffffff !important;
+        border: 1px solid #b3ccff !important;
+        border-radius: 8px !important;
+    }
+    
+    /* Forzar los elementos individuales de la lista (las opciones a elegir) */
+    li[role="option"], div[data-baseweb="select"]~div li {
+        color: #1a0066 !important;
+        background-color: #ffffff !important;
+    }
+    
+    /* Color cuando pasas el dedo o el ratón por encima de una opción */
+    li[role="option"]:hover, li[data-highlighted="true"] {
+        background-color: #e6f0ff !important;
+        color: #ff3399 !important;
+    }
+    
+    /* Los chips (etiquetas seleccionadas) */
     span[data-baseweb="tag"] {
         background-color: #d1e2ff !important;
         color: #1a0066 !important;
@@ -233,3 +251,17 @@ with st.expander("🔒 Panel de Administrador"):
         nuevo_artista = st.text_input("Artista:")
         nuevo_modo = st.selectbox("Modo:", ["Solitario", "Dúo", "Fiesta"])
         nuevo_genero = st.text_input("Género:")
+        
+        if st.button("Añadir al repertorio"):
+            if nuevo_titulo and nuevo_artista:
+                conn = obtener_conexion()
+                cursor = conn.cursor()
+                cursor.execute("INSERT INTO canciones (titulo, artista, modo, genero) VALUES (%s, %s, %s, %s)",
+                               (nuevo_titulo, nuevo_artista, nuevo_modo, nuevo_genero))
+                conn.commit()
+                cursor.close()
+                conn.close()
+                st.success("¡Guardada!")
+                st.rerun()
+    elif password != "":
+        st.error("Contraseña incorrecta")
