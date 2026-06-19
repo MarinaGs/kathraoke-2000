@@ -2,18 +2,18 @@ import streamlit as st
 import pandas as pd
 import psycopg2
 
-# --- 1. CONFIGURACIÓN VISUAL: DEGRADADO Y2K + FIX TOTAL PARA MENÚS DESPLEGABLES ---
+# --- 1. CONFIGURACIÓN VISUAL: PARCHE TOTAL ANTI-CACHÉ Y MENÚS MÓVILES ---
 st.set_page_config(page_title="Kathraoke 2000", page_icon="🎤", layout="centered")
 
 st.markdown("""
     <style>
-    /* Fondo con degradado difuminado tipo Holi moderno y suave */
+    /* Fondo e interfaz base */
     .stApp { 
-        background: linear-gradient(135deg, #ffe6f2 0%, #e6f0ff 50%, #f0e6ff 100%);
-        background-size: 400% 400%;
-        animation: gradientBG 15s ease infinite;
-        color: #1a0066; 
-        font-family: 'Courier New', monospace; 
+        background: linear-gradient(135deg, #ffe6f2 0%, #e6f0ff 50%, #f0e6ff 100%) !important;
+        background-size: 400% 400% !important;
+        animation: gradientBG 15s ease infinite !important;
+        color: #1a0066 !important; 
+        font-family: 'Courier New', monospace !important; 
     }
     
     @keyframes gradientBG {
@@ -22,71 +22,54 @@ st.markdown("""
         100% { background-position: 0% 50%; }
     }
 
-    /* Título estilo 2000s optimizado con sombras aqua y rosa */
+    /* Título principal */
     h1 { 
         color: #ff3399 !important; 
-        text-align: center; 
-        text-shadow: 2px 2px 6px #00ffff, -2px -2px 6px #fff; 
-        font-weight: 900;
+        text-align: center !important; 
+        text-shadow: 2px 2px 6px #00ffff, -2px -2px 6px #fff !important; 
+        font-weight: 900 !important;
         font-size: 24px !important;
-        letter-spacing: 1px;
         margin-top: -40px !important;
         margin-bottom: 10px !important;
         padding-bottom: 0px !important;
     }
 
-    /* Textos fijos y etiquetas encima de los inputs */
-    div[data-testid="stWidgetLabel"] p, label, .stMarkdown p, .stText, p {
+    /* Textos de etiquetas globales y encima de inputs */
+    div[data-testid="stWidgetLabel"] p, label, .stMarkdown p, .stText, p, span {
         color: #1a0066 !important;
         font-weight: bold !important;
-        font-size: 14px !important;
     }
 
-    /* PARCHE PARA EVITAR EL NEGRO EN MÓVILES AL TOCAR EL DESPLEGABLE (EXPANDER) */
-    div[data-testid="stExpander"] details summary p,
-    div[data-testid="stExpander"] details[open] summary p,
-    div[data-testid="stExpander"]:focus-within summary p,
-    .stExpander h2, .stExpander span {
+    /* PARCHE ULTRA-ESPECÍFICO PARA LAS LISTAS DESPLEGABLES INTERNAS EN MÓVIL */
+    /* Limpia el fondo negro de los menús flotantes que genera Streamlit por fuera */
+    div[data-baseweb="popover"] *, 
+    div[data-baseweb="menu"] *, 
+    ul[role="listbox"] *,
+    li[role="option"] * {
+        background-color: #ffffff !important;
         color: #1a0066 !important;
     }
 
-    /* Contenedor del desplegable (Expander) */
-    .stContentBlock, div[data-testid="stExpander"] {
-        background: rgba(255, 255, 255, 0.4) !important;
-        border: 1px solid #b3ccff !important;
-        border-radius: 12px !important;
+    /* Fondo de la caja de la lista desplegable */
+    div[data-baseweb="menu"], ul[role="listbox"] {
+        background-color: #ffffff !important;
+        border: 2px solid #b3ccff !important;
+        border-radius: 8px !important;
     }
-    
-    div[data-testid="stExpander"] summary:focus {
-        outline: none !important;
+
+    /* Cuando se pasa el dedo o se selecciona una opción en el móvil */
+    li[role="option"]:hover, li[data-highlighted="true"], li[role="option"]:active {
+        background-color: #e6f0ff !important;
+        color: #ff3399 !important;
     }
-    
-    /* --- SOLUCIÓN DE FILTROS: LISTA FLOTANTE NEGRA CORREGIDA --- */
+
+    /* Contenedor del filtro (Multiselect) en reposo */
     div[data-baseweb="select"] {
         background: rgba(255, 255, 255, 0.9) !important;
         border-radius: 8px !important;
     }
-    
-    /* Forzar el fondo blanco y texto oscuro de la lista de opciones que se despliega */
-    div[data-baseweb="menu"], ul[role="listbox"] {
-        background-color: #ffffff !important;
-        border: 1px solid #b3ccff !important;
-        border-radius: 8px !important;
-    }
-    
-    /* Forzar los elementos individuales de la lista (las opciones a elegir) */
-    li[role="option"], div[data-baseweb="select"]~div li {
-        color: #1a0066 !important;
-        background-color: #ffffff !important;
-    }
-    
-    /* Color cuando pasas el dedo o el ratón por encima de una opción */
-    li[role="option"]:hover, li[data-highlighted="true"] {
-        background-color: #e6f0ff !important;
-        color: #ff3399 !important;
-    }
-    
-    /* Los chips (etiquetas seleccionadas) */
+
+    /* Los chips (etiquetas) de las opciones que ya se han seleccionado */
     span[data-baseweb="tag"] {
         background-color: #d1e2ff !important;
         color: #1a0066 !important;
@@ -96,69 +79,62 @@ st.markdown("""
     span[data-baseweb="tag"] role[button], span[data-baseweb="tag"] svg {
         fill: #1a0066 !important;
     }
+
+    /* PARCHE PARA EVITAR EL NEGRO EN EL PROPIO DESPLEGABLE (EXPANDER) */
+    div[data-testid="stExpander"] details summary p,
+    div[data-testid="stExpander"] details[open] summary p,
+    div[data-testid="stExpander"]:focus-within summary p,
+    .stExpander h2, .stExpander span {
+        color: #1a0066 !important;
+    }
     
-    /* Tarjeta compacta de canción estilo lista de reproducción */
+    div[data-testid="stExpander"] summary:focus {
+        outline: none !important;
+    }
+
+    /* Contenedor del bloque Expander */
+    div[data-testid="stExpander"] {
+        background: rgba(255, 255, 255, 0.4) !important;
+        border: 1px solid #b3ccff !important;
+        border-radius: 12px !important;
+    }
+
+    /* Tarjetas de canciones de la lista */
     .song-card {
-        background: rgba(255, 255, 255, 0.7);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        padding: 8px 12px;
-        margin-bottom: 6px;
-        border-radius: 10px;
-        border: 1px solid rgba(255, 255, 255, 0.6);
-        box-shadow: 0 4px 15px rgba(179, 204, 255, 0.2);
-        
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+        background: rgba(255, 255, 255, 0.7) !important;
+        backdrop-filter: blur(10px) !important;
+        -webkit-backdrop-filter: blur(10px) !important;
+        padding: 8px 12px !important;
+        margin-bottom: 6px !important;
+        border-radius: 10px !important;
+        border: 1px solid rgba(255, 255, 255, 0.6) !important;
+        box-shadow: 0 4px 15px rgba(179, 204, 255, 0.2) !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
     }
     
-    .song-info {
-        display: flex;
-        flex-direction: column;
-        flex-grow: 1;
-        padding-right: 8px;
-    }
-    
-    .song-title {
-        font-size: 14px;
-        font-weight: bold;
-        color: #2b0080;
-    }
-    
-    .song-artist {
-        font-size: 12px;
-        color: #555555;
-        margin-top: 1px;
-    }
+    .song-title { color: #2b0080 !important; font-size: 14px !important; font-weight: bold !important; }
+    .song-artist { color: #555555 !important; font-size: 12px !important; }
 
-    .song-tags {
-        display: flex;
-        gap: 4px;
-        flex-shrink: 0;
-    }
-
-    /* Etiquetas internas de las canciones */
+    /* Etiquetas neón estáticas de las canciones */
     .tag {
-        display: inline-block;
-        background: linear-gradient(90deg, #3385ff, #00ccff);
+        display: inline-block !important;
+        background: linear-gradient(90deg, #3385ff, #00ccff) !important;
         color: white !important;
-        padding: 3px 8px;
-        border-radius: 20px;
-        font-size: 10px;
-        font-weight: bold;
+        padding: 3px 8px !important;
+        border-radius: 20px !important;
+        font-size: 10px !important;
+        font-weight: bold !important;
     }
-    
-    .tag-modo {
-        background: linear-gradient(90deg, #ff3399, #ff99cc);
-    }
+    .tag-modo { background: linear-gradient(90deg, #ff3399, #ff99cc) !important; }
 
     /* Buscador e Inputs generales */
     .stTextInput>div>div>input {
         background: rgba(255, 255, 255, 0.9) !important;
-        border-radius: 12px !important;
         border: 1px solid #ff99cc !important;
         color: #1a0066 !important;
+        border-radius: 12px !important;
     }
     
     hr {
