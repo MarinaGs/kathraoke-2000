@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import psycopg2
 
-# --- 1. CONFIGURACIÓN VISUAL: PALETA DE COLORES Y2K CON TEXTOS VISIBLES ---
+# --- 1. CONFIGURACIÓN VISUAL: PALETA DE COLORES Y2K CON FILTROS CORREGIDOS ---
 st.set_page_config(page_title="Kathraoke 2000", page_icon="🎤", layout="centered")
 
 st.markdown("""
@@ -35,14 +35,32 @@ st.markdown("""
         padding-bottom: 0px !important;
     }
 
-    /* SOLUCIÓN DEFINITIVA PARA LOS TEXTOS EN BLANCO ENCIMA DE LOS INPUTS */
+    /* Textos fijos y etiquetas encima de los inputs */
     div[data-testid="stWidgetLabel"] p, label, .stMarkdown p, .stText, p {
         color: #1a0066 !important;
         font-weight: bold !important;
         font-size: 14px !important;
     }
 
-    /* Estilo para los desplegables (Expander) */
+    /* SOLUCIÓN DE FILTROS: Forzar colores de los selectores dinámicos de Streamlit */
+    div[data-baseweb="select"] {
+        background: rgba(255, 255, 255, 0.9) !important;
+        border-radius: 8px !important;
+    }
+    
+    /* Cambiar el color de los elementos seleccionados dentro del filtro (Multiselect) */
+    span[data-baseweb="tag"] {
+        background-color: #d1e2ff !important; /* Azul pastel */
+        color: #1a0066 !important; /* Texto oscuro legible */
+        border-radius: 6px !important;
+    }
+    
+    /* Color de la X para eliminar un filtro */
+    span[data-baseweb="tag"] role[button], span[data-baseweb="tag"] svg {
+        fill: #1a0066 !important;
+    }
+
+    /* Estilo para el contenedor desplegable (Expander) */
     .stContentBlock, div[data-testid="stExpander"] {
         background: rgba(255, 255, 255, 0.4) !important;
         border: 1px solid #b3ccff !important;
@@ -90,7 +108,7 @@ st.markdown("""
         flex-shrink: 0;
     }
 
-    /* Etiquetas de las canciones */
+    /* Etiquetas internas de las canciones en la lista */
     .tag {
         display: inline-block;
         background: linear-gradient(90deg, #3385ff, #00ccff);
@@ -105,18 +123,12 @@ st.markdown("""
         background: linear-gradient(90deg, #ff3399, #ff99cc);
     }
 
-    /* Buscador e Inputs: Bordes rosa pastel y texto interior oscuro */
+    /* Buscador e Inputs generales */
     .stTextInput>div>div>input {
         background: rgba(255, 255, 255, 0.9) !important;
         border-radius: 12px !important;
         border: 1px solid #ff99cc !important;
         color: #1a0066 !important;
-    }
-
-    /* Estilo para los multiselectores (filtros) */
-    div[data-baseweb="select"] {
-        background: rgba(255, 255, 255, 0.9) !important;
-        border-radius: 8px !important;
     }
     
     hr {
