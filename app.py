@@ -28,55 +28,61 @@ st.markdown("""
     div[data-testid="stExpander"] details summary p { display: inline-block !important; }
     
     /* -------------------------------------------------------------
-       REESCRITURA COMPLETA DE CHECKBOXES (SIN PUNTOS NI FONDOS AZULES)
+       REESCRITURA CRÍTICA DE CHECKBOXES (ELIMINACIÓN DE AZUL Y ROJO)
        ------------------------------------------------------------- */
     
-    /* Forzar limpieza absoluta de fondos y bordes en el contenedor */
-    div[data-testid="stCheckbox"] {
+    /* 1. Limpieza absoluta de la fila del checkbox y sus estados activos */
+    div[data-testid="stCheckbox"], 
+    div[data-testid="stCheckbox"] > label,
+    div[data-testid="stCheckbox"] [data-baseweb="checkbox"] {
         background-color: transparent !important;
         background: transparent !important;
         border: none !important;
-        padding: 4px 0px !important;
     }
 
-    /* Texto de las palabras (Solitario, Dúo, etc.) totalmente limpio */
-    div[data-testid="stCheckbox"] p {
+    /* 2. Forzar que las palabras NUNCA tengan fondo azul ni cambien al marcar */
+    div[data-testid="stCheckbox"] p,
+    div[data-testid="stCheckbox"] [data-baseweb="checkbox"] p,
+    div[data-testid="stCheckbox"] input[type="checkbox"]:checked ~ div + p,
+    div[data-testid="stCheckbox"] label span p {
         color: #1a0066 !important; 
         font-weight: bold !important; 
         background-color: transparent !important;
         background: transparent !important;
-        padding-left: 6px !important;
-        margin: 0 !important;
+        text-shadow: none !important;
     }
 
-    /* Evitar que aparezcan pseudo-elementos extraños o puntos debajo */
-    div[data-testid="stCheckbox"] p::after, div[data-testid="stCheckbox"] p::before {
-        content: none !important;
-        display: none !important;
-    }
-
-    /* Caja del checkbox nativo de Streamlit (el cuadradito) */
-    div[data-testid="stCheckbox"] span[data-baseweb="checkbox"] > div {
+    /* 3. Estilo base del cuadradito (Desmarcado) */
+    div[data-testid="stCheckbox"] span[data-baseweb="checkbox"] > div:first-child {
         border-radius: 4px !important;
-        border: 2px solid #1a0066 !important; /* Borde morado */
+        border: 2px solid #1a0066 !important;
         background-color: #ffffff !important;
-        width: 16px !important;
-        height: 16px !important;
+        width: 18px !important;
+        height: 18px !important;
     }
     
-    /* Cuando está seleccionado: Fondo lila suave en el cuadradito, eliminando el rojo */
-    div[data-testid="stCheckbox"] input[type="checkbox"]:checked ~ div { 
-        background-color: #b3ccff !important; 
+    /* 4. Estilo del cuadradito (Marcado) - Reemplaza el rojo por un lila/rosa suave */
+    div[data-testid="stCheckbox"] input[type="checkbox"]:checked + div,
+    div[data-testid="stCheckbox"] input[type="checkbox"]:checked ~ div,
+    div[data-testid="stCheckbox"] [data-baseweb="checkbox"] div[background-color] { 
+        background-color: #b3ccff !important; /* Fondo lila suave armonioso */
         border-color: #1a0066 !important;
     }
     
-    /* Forzar que el checkmark interno use el color morado de la aplicación */
-    div[data-testid="stCheckbox"] svg {
+    /* 5. Color del tick interno (Morado oscuro en vez de blanco/rojo) */
+    div[data-testid="stCheckbox"] svg,
+    div[data-testid="stCheckbox"] [data-baseweb="checkbox"] svg {
         fill: none !important;
-        stroke: #1a0066 !important; /* El tick interno ahora es morado oscuro */
-        stroke-width: 3px !important;
+        stroke: #1a0066 !important; /* El tick interno ahora es morado */
+        stroke-width: 4px !important;
     }
     
+    /* Remover cualquier sombra o resplandor azul de enfoque nativo */
+    div[data-testid="stCheckbox"] :focus, 
+    div[data-testid="stCheckbox"] [data-baseweb="checkbox"] > div:blur {
+        box-shadow: none !important;
+        outline: none !important;
+    }
     /* ------------------------------------------------------------- */
 
     .song-card { background: rgba(255, 255, 255, 0.7) !important; padding: 8px 12px !important; margin-bottom: 6px !important; border-radius: 10px !important; border: 1px solid rgba(255, 255, 255, 0.6) !important; display: flex !important; justify-content: space-between !important; align-items: center !important; }
