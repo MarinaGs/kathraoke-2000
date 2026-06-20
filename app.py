@@ -15,26 +15,44 @@ st.markdown("""
     @keyframes gradientBG { 0% { background-position:0% 50%; } 50% { background-position:100% 50%; } 100% { background-position:0% 50%; } }
     h1 { color: #1a0066 !important; text-align: center !important; font-size: 24px !important; margin-top: -40px; }
     
-    /* Selectores específicos y acotados para evitar romper los iconos de Streamlit */
-    div[data-testid="stWidgetLabel"] p, label, .stMarkdown p, div[data-testid="stCheckbox"] p { 
+    /* Forzar color morado constante en etiquetas, textos de checkbox y estados activos */
+    div[data-testid="stWidgetLabel"] p, label, .stMarkdown p, div[data-testid="stCheckbox"] p,
+    div[data-testid="stExpander"] details summary, div[data-testid="stExpander"] details[open] summary p { 
         color: #1a0066 !important; 
         font-weight: bold !important; 
         font-family: 'Courier New', monospace !important;
     }
     
-    /* Estilo para el título visible del expander sin alterar su flecha interna */
-    div[data-testid="stExpander"] details summary p {
-        color: #1a0066 !important;
-        font-weight: bold !important;
-        font-family: 'Courier New', monospace !important;
-        display: inline-block !important;
+    /* Contenedor del expansor estable */
+    div[data-testid="stExpander"] { background: rgba(255, 255, 255, 0.6) !important; border: 1px solid #b3ccff !important; border-radius: 12px !important; }
+    div[data-testid="stExpander"] details summary p { display: inline-block !important; }
+    
+    /* CAMBIOS EN CHECKBOX: Fondo suave para el texto del checkbox */
+    div[data-testid="stCheckbox"] {
+        background-color: rgba(255, 255, 255, 0.5) !important;
+        padding: 4px 8px !important;
+        border-radius: 8px !important;
+        border: 1px solid rgba(26, 0, 102, 0.1) !important;
+        display: inline-flex !important;
+        align-items: center !important;
+    }
+
+    /* Modificación del recuadro del tick (reemplazo de azul oscuro por diseño estilizado) */
+    div[data-testid="stCheckbox"] span[data-baseweb="checkbox"] > div {
+        border-radius: 4px !important;
+        border-color: #1a0066 !important;
     }
     
-    div[data-testid="stExpander"] { background: rgba(255, 255, 255, 0.6) !important; border: 1px solid #b3ccff !important; border-radius: 12px !important; }
+    /* Cuando está seleccionado: fondo rosa/lila en lugar de azul oscuro */
+    div[data-testid="stCheckbox"] input[type="checkbox"]:checked ~ div { 
+        background-color: #ff99cc !important; 
+        border-color: #ff99cc !important; 
+    }
     
-    /* Corrección del color del checkbox seleccionado */
-    div[data-testid="stCheckbox"] input[type="checkbox"]:checked ~ div { background-color: #1a0066 !important; border-color: #1a0066 !important; }
-    span[data-baseweb="checkbox"] > div { border-color: #1a0066 !important; }
+    /* Estilo del icono del tick interior */
+    div[data-testid="stCheckbox"] svg {
+        stroke: #1a0066 !important; /* El tick interno ahora es morado oscuro en vez de blanco */
+    }
 
     .song-card { background: rgba(255, 255, 255, 0.7) !important; padding: 8px 12px !important; margin-bottom: 6px !important; border-radius: 10px !important; border: 1px solid rgba(255, 255, 255, 0.6) !important; display: flex !important; justify-content: space-between !important; align-items: center !important; }
     .song-title { color: #2b0080 !important; font-size: 14px !important; font-weight: bold !important; }
@@ -45,7 +63,7 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-st.title("✨ ⚡ KATHRAOKE 2000 ⚡ ✨")
+st.title("✨ ⚡ KATHRAOKE ⚡ ✨")
 
 # --- 2. BASE DE DATOS ---
 DATABASE_URL = st.secrets["DATABASE_URL"]
