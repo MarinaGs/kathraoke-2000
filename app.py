@@ -83,8 +83,8 @@ buscar = st.text_input("✨ Busca tu temazo, artista o cantante:", placeholder="
 modos_fijos, generos_fijos = ["Solitario", "Dúo", "Fiesta"], ["Pop", "Rock", "Reggaetón", "Latino"]
 
 with st.expander("🎛️ Filtros"):
-    filtro_modo = st.pills("👥 Modo:", opciones=modos_fijos, default=modos_fijos, selection_mode="multi")
-    filtro_genero = st.pills("🎸 Género:", opciones=generos_fijos, default=generos_fijos, selection_mode="multi")
+    filtro_modo = st.pills("👥 Modo:", options=modos_fijos, default=modos_fijos, selection_mode="multi")
+    filtro_genero = st.pills("🎸 Género:", options=generos_fijos, default=generos_fijos, selection_mode="multi")
 
 st.markdown("---")
 
