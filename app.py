@@ -15,8 +15,8 @@ st.markdown("""
     @keyframes gradientBG { 0% { background-position:0% 50%; } 50% { background-position:100% 50%; } 100% { background-position:0% 50%; } }
     h1 { color: #1a0066 !important; text-align: center !important; font-size: 24px !important; margin-top: -40px; }
     
-    /* Forzar color morado constante en etiquetas, textos de checkbox y estados activos */
-    div[data-testid="stWidgetLabel"] p, label, .stMarkdown p, div[data-testid="stCheckbox"] p,
+    /* Forzar color morado constante en el título del expander y textos generales */
+    div[data-testid="stWidgetLabel"] p, label, .stMarkdown p,
     div[data-testid="stExpander"] details summary, div[data-testid="stExpander"] details[open] summary p { 
         color: #1a0066 !important; 
         font-weight: bold !important; 
@@ -27,31 +27,57 @@ st.markdown("""
     div[data-testid="stExpander"] { background: rgba(255, 255, 255, 0.6) !important; border: 1px solid #b3ccff !important; border-radius: 12px !important; }
     div[data-testid="stExpander"] details summary p { display: inline-block !important; }
     
-    /* CAMBIOS EN CHECKBOX: Fondo suave para el texto del checkbox */
+    /* COMPONENTE CHECKBOX REESTRUCTURADO */
     div[data-testid="stCheckbox"] {
-        background-color: rgba(255, 255, 255, 0.5) !important;
-        padding: 4px 8px !important;
-        border-radius: 8px !important;
-        border: 1px solid rgba(26, 0, 102, 0.1) !important;
+        background-color: transparent !important; /* Eliminado el fondo lila/azul de las palabras */
+        padding: 4px 0px !important;
+        border: none !important; /* Sin bordes adicionales en el texto */
         display: inline-flex !important;
         align-items: center !important;
     }
 
-    /* Modificación del recuadro del tick (reemplazo de azul oscuro por diseño estilizado) */
+    /* Texto de las opciones del filtro sin fondo */
+    div[data-testid="stCheckbox"] p {
+        color: #1a0066 !important; 
+        font-weight: bold !important; 
+        background: none !important;
+        padding-left: 4px !important;
+    }
+
+    /* Ocultar el tick nativo o imágenes superpuestas del sistema operativo */
+    div[data-testid="stCheckbox"] input[type="checkbox"] {
+        appearance: none !important;
+        -webkit-appearance: none !important;
+    }
+
+    /* Personalización del recuadro del checkbox */
     div[data-testid="stCheckbox"] span[data-baseweb="checkbox"] > div {
-        border-radius: 4px !important;
+        border-radius: 6px !important;
+        border: 2px solid #1a0066 !important; /* Borde morado definido */
+        background-color: #ffffff !important;
+        width: 18px !important;
+        height: 18px !important;
+        transition: all 0.2s ease;
+    }
+    
+    /* Estado seleccionado: Cambia a fondo lila suave sin mostrar el icono rojo del sistema */
+    div[data-testid="stCheckbox"] input[type="checkbox"]:checked ~ div { 
+        background-color: #b3ccff !important; 
         border-color: #1a0066 !important;
     }
     
-    /* Cuando está seleccionado: fondo rosa/lila en lugar de azul oscuro */
-    div[data-testid="stCheckbox"] input[type="checkbox"]:checked ~ div { 
-        background-color: #ff99cc !important; 
-        border-color: #ff99cc !important; 
-    }
-    
-    /* Estilo del icono del tick interior */
+    /* Reemplazo completo del tick interior por un punto central morado limpio */
     div[data-testid="stCheckbox"] svg {
-        stroke: #1a0066 !important; /* El tick interno ahora es morado oscuro en vez de blanco */
+        display: none !important; /* Elimina por completo el vector del tick original */
+    }
+    div[data-testid="stCheckbox"] input[type="checkbox"]:checked ~ div::after {
+        content: "" !important;
+        display: block !important;
+        width: 8px !important;
+        height: 8px !important;
+        margin: 3px !important;
+        border-radius: 50% !important;
+        background-color: #1a0066 !important; /* Punto central morado */
     }
 
     .song-card { background: rgba(255, 255, 255, 0.7) !important; padding: 8px 12px !important; margin-bottom: 6px !important; border-radius: 10px !important; border: 1px solid rgba(255, 255, 255, 0.6) !important; display: flex !important; justify-content: space-between !important; align-items: center !important; }
@@ -63,7 +89,8 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-st.title("✨ ⚡ KATHRAOKE ⚡ ✨")
+
+st.title("✨ ⚡ KATHRAOKE 2000 ⚡ ✨")
 
 # --- 2. BASE DE DATOS ---
 DATABASE_URL = st.secrets["DATABASE_URL"]
