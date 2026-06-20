@@ -15,11 +15,19 @@ st.markdown("""
     @keyframes gradientBG { 0% { background-position:0% 50%; } 50% { background-position:100% 50%; } 100% { background-position:0% 50%; } }
     h1 { color: #1a0066 !important; text-align: center !important; font-size: 24px !important; margin-top: -40px; }
     
-    /* Selectores específicos para etiquetas de texto sin romper los checkbox */
-    div[data-testid="stWidgetLabel"] p, label, .stMarkdown p, span, div[data-testid="stCheckbox"] p { 
+    /* Selectores específicos y acotados para evitar romper los iconos de Streamlit */
+    div[data-testid="stWidgetLabel"] p, label, .stMarkdown p, div[data-testid="stCheckbox"] p { 
         color: #1a0066 !important; 
         font-weight: bold !important; 
         font-family: 'Courier New', monospace !important;
+    }
+    
+    /* Estilo para el título visible del expander sin alterar su flecha interna */
+    div[data-testid="stExpander"] details summary p {
+        color: #1a0066 !important;
+        font-weight: bold !important;
+        font-family: 'Courier New', monospace !important;
+        display: inline-block !important;
     }
     
     div[data-testid="stExpander"] { background: rgba(255, 255, 255, 0.6) !important; border: 1px solid #b3ccff !important; border-radius: 12px !important; }
