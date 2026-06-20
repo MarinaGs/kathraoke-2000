@@ -98,7 +98,7 @@ st.markdown("""
         font-weight: bold !important;
     }
 
-    /* SOLUCCIÓN AL RECUADRO GRIS Y LETRAS BLANCAS DEL BUSCADOR */
+    /* Solución al recuadro gris y letras blancas del buscador */
     .stTextInput>div>div {
         background-color: #ffffff !important;
         border-radius: 12px !important;
@@ -168,7 +168,6 @@ with st.expander("🎛️ Filtrar por Género o Modo"):
         modos_disponibles = ["Todos", "Solitario", "Dúo", "Fiesta"]
         generos_disponibles = ["Todos", "Pop", "Rock", "Reggaetón", "Latino"]
 
-    # Usamos selectbox simples que no se rompen con los colores del móvil
     seleccion_modo = st.selectbox("👥 Elige Modo de canto:", options=modos_disponibles)
     seleccion_genero = st.selectbox("🎸 Elige Género musical:", options=generos_disponibles)
 
@@ -178,7 +177,6 @@ st.markdown("---")
 if df_completo.empty:
     st.info("La lista está vacía. Desplázate abajo al Panel de Administrador para estrenar la base de datos.")
 else:
-    # Lógica de filtrado adaptada al selectbox ("Todos")
     if seleccion_modo == "Todos":
         filtro_modo = df_completo["modo"].unique().tolist()
     else:
@@ -212,13 +210,15 @@ else:
     else:
         st.warning("No encontramos esa canción. ¡Intenta otra búsqueda!")
 
-# --- 6. PANEL ADMIN AL FINAL ---
+# --- 6. PANEL ADMIN CON FUNCIÓN DE AÑADIR Y ELIMINAR ---
 st.markdown("---")
 with st.expander("🔒 Panel de Administrador"):
     password = st.text_input("Contraseña Admin:", type="password")
     
     if password == "admin123":
         st.success("Acceso autorizado")
+        
+        st.subheader("➕ Añadir Canción")
         nuevo_titulo = st.text_input("Título de la canción:")
         nuevo_artista = st.text_input("Artista:")
         nuevo_modo = st.selectbox("Modo de canto (Admin):", ["Solitario", "Dúo", "Fiesta"])
@@ -235,5 +235,27 @@ with st.expander("🔒 Panel de Administrador"):
                 conn.close()
                 st.success("¡Guardada!")
                 st.rerun()
+                
+        st.markdown("---")
+        st.subheader("🗑️ Eliminar Canción")
+        
+        if not df_completo.empty:
+            # Creamos una lista limpia de opciones legibles "Título - Artista"
+            opciones_eliminar = {f"{f['titulo']} - {f['artista']}": f['id'] for _, f in df_completo.iterrows()}
+            cancion_a_eliminar = st.selectbox("Selecciona la canción que deseas borrar:", options=list(opciones_eliminar.keys()))
+            
+            if st.button("❌ Eliminar definitivamente", type="secondary"):
+                id_borrar = opciones_eliminar[cancion_a_eliminar]
+                conn = obtener_conexion()
+                cursor = conn.cursor()
+                cursor.execute("DELETE FROM canciones WHERE id = %s", (id_borrar,))
+                conn.commit()
+                cursor.close()
+                conn.close()
+                st.success("Canción eliminada del repertorio.")
+                st.rerun()
+        else:
+            st.text("No hay canciones disponibles para eliminar.")
+            
     elif password != "":
         st.error("Contraseña incorrecta")
