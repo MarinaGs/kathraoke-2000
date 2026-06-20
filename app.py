@@ -6,7 +6,7 @@ import psycopg2
 st.set_page_config(page_title="Kathraoke 2000", page_icon="🎤", layout="centered")
 st.markdown("""
     <style>
-    /* 1. RESET REGLAS INTERNAS DE ENFOQUE Y TÁCTIL */
+    /* RESET REGLAS INTERNAS DE ENFOQUE Y TÁCTIL */
     * { -webkit-tap-highlight-color: transparent !important; outline: none !important; }
     
     /* Fondo animado principal */
@@ -18,7 +18,7 @@ st.markdown("""
     @keyframes gradientBG { 0% { background-position:0% 50%; } 50% { background-position:100% 50%; } 100% { background-position:0% 50%; } }
     h1 { color: #1a0066 !important; text-align: center !important; font-size: 24px !important; margin-top: -40px; }
     
-    /* 2. FORZAR TEXTOS SIEMPRE EN MORADO (EVITA TEXTO INVISIBLE EN MÓVIL) */
+    /* FORZAR TEXTOS SIEMPRE EN MORADO */
     div[data-testid="stWidgetLabel"] p, label, .stMarkdown p, 
     div[data-testid="stExpander"] summary p, div[data-testid="stExpander"] p { 
         color: #1a0066 !important; 
@@ -26,7 +26,7 @@ st.markdown("""
         font-family: 'Courier New', monospace !important;
     }
     
-    /* 3. EVITAR QUE EL FILTRO SE VUELVA NEGRO AL INTERACTUAR */
+    /* EVITAR QUE EL FILTRO SE VUELVA NEGRO AL INTERACTUAR */
     div[data-testid="stExpander"] { 
         background: rgba(255, 255, 255, 0.6) !important; 
         border: 1px solid #b3ccff !important; 
@@ -44,42 +44,39 @@ st.markdown("""
         background-color: transparent !important;
         color: #1a0066 !important;
     }
-    /* Forzar que la flechita del filtro sea morada */
-    div[data-testid="stExpander"] svg {
-        fill: #1a0066 !important;
-    }
+    div[data-testid="stExpander"] svg { fill: #1a0066 !important; }
 
-    /* 4. REDISEÑO TOTAL DE ST.PILLS (SÚPER COLO RESPETADO) */
+    /* REDISEÑO TOTAL Y AISLAMIENTO DE ST.PILLS */
     div[data-testid="stPills"] button {
         font-family: 'Courier New', monospace !important;
         font-weight: bold !important;
-        transition: all 0.2s ease !important;
+        transition: background-color 0.2s ease, color 0.2s ease !important;
     }
     
-    /* Píldora NO seleccionada (Blanco/Rosa translúcido con borde lila) */
-    div[data-testid="stPills"] button[aria-selected="false"] {
+    /* 1. Píldora NO seleccionada (Estado Base y todos los focos posibles en móvil) */
+    div[data-testid="stPills"] button[aria-selected="false"],
+    div[data-testid="stPills"] button[aria-selected="false"]:hover,
+    div[data-testid="stPills"] button[aria-selected="false"]:focus,
+    div[data-testid="stPills"] button[aria-selected="false"]:active,
+    div[data-testid="stPills"] button[aria-selected="false"]:focus-visible {
         background-color: rgba(255, 255, 255, 0.7) !important;
         color: #1a0066 !important;
         border: 1px solid #ff99cc !important;
     }
     
-    /* Píldora SI seleccionada (Fondo lila oscuro o rosa chillón muy chulo, texto visible) */
-    div[data-testid="stPills"] button[aria-selected="true"] {
-        background-color: #1a0066 !important; /* Fondo morado noche */
-        color: #ffffff !important; /* Texto blanco para que resalte y se lea */
+    /* 2. Píldora SI seleccionada (Estado Activo y todos los focos posibles en móvil) */
+    div[data-testid="stPills"] button[aria-selected="true"],
+    div[data-testid="stPills"] button[aria-selected="true"]:hover,
+    div[data-testid="stPills"] button[aria-selected="true"]:focus,
+    div[data-testid="stPills"] button[aria-selected="true"]:active,
+    div[data-testid="stPills"] button[aria-selected="true"]:focus-visible {
+        background-color: #1a0066 !important;
+        color: #ffffff !important;
         border: 1px solid #1a0066 !important;
         box-shadow: 0px 2px 5px rgba(26,0,102,0.2) !important;
     }
 
-    /* Bloquear comportamientos raros de foco negro en móvil */
-    div[data-testid="stPills"] button:focus, 
-    div[data-testid="stPills"] button:active,
-    div[data-testid="stPills"] button:hover {
-        color: inherit !important;
-        background-color: inherit !important;
-    }
-
-    /* 5. TARJETAS DE CANCIONES Y BUSCADOR */
+    /* TARJETAS DE CANCIONES Y BUSCADOR */
     .song-card { background: rgba(255, 255, 255, 0.7) !important; padding: 8px 12px !important; margin-bottom: 6px !important; border-radius: 10px !important; border: 1px solid rgba(255, 255, 255, 0.6) !important; display: flex !important; justify-content: space-between !important; align-items: center !important; }
     .song-title { color: #2b0080 !important; font-size: 14px !important; font-weight: bold !important; }
     .song-artist { color: #555555 !important; font-size: 12px !important; }
