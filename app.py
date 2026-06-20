@@ -2,11 +2,14 @@ import streamlit as st
 import pandas as pd
 import psycopg2
 
-# --- 1. ESTILOS VISUALES (COMPACTOS Y LIMPIOS) ---
+# --- 1. ESTILOS VISUALES (COMPACTOS, ESTABLES Y ANTI-MODO OSCURO) ---
 st.set_page_config(page_title="Kathraoke 2000", page_icon="🎤", layout="centered")
 st.markdown("""
     <style>
+    /* 1. RESET REGLAS INTERNAS DE ENFOQUE Y TÁCTIL */
     * { -webkit-tap-highlight-color: transparent !important; outline: none !important; }
+    
+    /* Fondo animado principal */
     .stApp { 
         background: linear-gradient(135deg, #ffe6f2 0%, #e6f0ff 50%, #f0e6ff 100%) !important;
         background-size: 400% 400% !important; animation: gradientBG 15s ease infinite !important;
@@ -15,50 +18,74 @@ st.markdown("""
     @keyframes gradientBG { 0% { background-position:0% 50%; } 50% { background-position:100% 50%; } 100% { background-position:0% 50%; } }
     h1 { color: #1a0066 !important; text-align: center !important; font-size: 24px !important; margin-top: -40px; }
     
-    /* Títulos generales constantes en morado */
-    div[data-testid="stWidgetLabel"] p, label, .stMarkdown p,
-    div[data-testid="stExpander"] details summary, div[data-testid="stExpander"] details[open] summary p { 
+    /* 2. FORZAR TEXTOS SIEMPRE EN MORADO (EVITA TEXTO INVISIBLE EN MÓVIL) */
+    div[data-testid="stWidgetLabel"] p, label, .stMarkdown p, 
+    div[data-testid="stExpander"] summary p, div[data-testid="stExpander"] p { 
         color: #1a0066 !important; 
         font-weight: bold !important; 
         font-family: 'Courier New', monospace !important;
     }
     
-    /* Contenedor del expansor limpio */
-    div[data-testid="stExpander"] { background: rgba(255, 255, 255, 0.6) !important; border: 1px solid #b3ccff !important; border-radius: 12px !important; }
-    div[data-testid="stExpander"] details summary p { display: inline-block !important; }
-
-    /* PREVENCIÓN DE COLOR NEGRO EN ST.PILLS PARA MÓVILES */
-    div[data-testid="stPills"] > div, 
-    div[data-testid="stPills"] button,
-    div[data-testid="stPills"] button:focus,
-    div[data-testid="stPills"] button:active,
-    div[data-testid="stPills"] button:hover {
+    /* 3. EVITAR QUE EL FILTRO SE VUELVA NEGRO AL INTERACTUAR */
+    div[data-testid="stExpander"] { 
+        background: rgba(255, 255, 255, 0.6) !important; 
+        border: 1px solid #b3ccff !important; 
+        border-radius: 12px !important; 
+    }
+    div[data-testid="stExpander"] details, 
+    div[data-testid="stExpander"] details[open], 
+    div[data-testid="stExpander"] summary {
+        background-color: transparent !important;
+        background: transparent !important;
+    }
+    div[data-testid="stExpander"] summary:hover, 
+    div[data-testid="stExpander"] summary:active, 
+    div[data-testid="stExpander"] summary:focus {
         background-color: transparent !important;
         color: #1a0066 !important;
-        box-shadow: none !important;
+    }
+    /* Forzar que la flechita del filtro sea morada */
+    div[data-testid="stExpander"] svg {
+        fill: #1a0066 !important;
     }
 
-    /* Estilo de la píldora cuando está seleccionada de forma activa */
-    div[data-testid="stPills"] button[aria-selected="true"] {
-        background-color: #b3ccff !important;
-        color: #1a0066 !important;
-        border: 1px solid #1a0066 !important;
+    /* 4. REDISEÑO TOTAL DE ST.PILLS (SÚPER COLO RESPETADO) */
+    div[data-testid="stPills"] button {
+        font-family: 'Courier New', monospace !important;
+        font-weight: bold !important;
+        transition: all 0.2s ease !important;
     }
-
-    /* Estilo de la píldora cuando está desmarcada */
+    
+    /* Píldora NO seleccionada (Blanco/Rosa translúcido con borde lila) */
     div[data-testid="stPills"] button[aria-selected="false"] {
-        background-color: rgba(255, 255, 255, 0.4) !important;
+        background-color: rgba(255, 255, 255, 0.7) !important;
         color: #1a0066 !important;
-        border: 1px solid rgba(26, 0, 102, 0.2) !important;
-        opacity: 0.7;
+        border: 1px solid #ff99cc !important;
+    }
+    
+    /* Píldora SI seleccionada (Fondo lila oscuro o rosa chillón muy chulo, texto visible) */
+    div[data-testid="stPills"] button[aria-selected="true"] {
+        background-color: #1a0066 !important; /* Fondo morado noche */
+        color: #ffffff !important; /* Texto blanco para que resalte y se lea */
+        border: 1px solid #1a0066 !important;
+        box-shadow: 0px 2px 5px rgba(26,0,102,0.2) !important;
     }
 
-    /* Diseño de las tarjetas de canciones */
+    /* Bloquear comportamientos raros de foco negro en móvil */
+    div[data-testid="stPills"] button:focus, 
+    div[data-testid="stPills"] button:active,
+    div[data-testid="stPills"] button:hover {
+        color: inherit !important;
+        background-color: inherit !important;
+    }
+
+    /* 5. TARJETAS DE CANCIONES Y BUSCADOR */
     .song-card { background: rgba(255, 255, 255, 0.7) !important; padding: 8px 12px !important; margin-bottom: 6px !important; border-radius: 10px !important; border: 1px solid rgba(255, 255, 255, 0.6) !important; display: flex !important; justify-content: space-between !important; align-items: center !important; }
     .song-title { color: #2b0080 !important; font-size: 14px !important; font-weight: bold !important; }
     .song-artist { color: #555555 !important; font-size: 12px !important; }
     .tag-container { display: flex; gap: 4px; flex-wrap: wrap; }
     .tag { display: inline-block !important; background-color: #ffffff !important; color: #1a0066 !important; padding: 2px 6px !important; border-radius: 20px !important; border: 1px solid #b3ccff !important; font-size: 10px !important; font-weight: bold !important; }
+    
     .stTextInput input { background-color: #ffffff !important; border: 1px solid #b3ccff !important; color: #1a0066 !important; border-radius: 12px !important; }
     </style>
     """, unsafe_allow_html=True)
@@ -83,6 +110,7 @@ buscar = st.text_input("✨ Busca tu temazo, artista o cantante:", placeholder="
 modos_fijos, generos_fijos = ["Solitario", "Dúo", "Fiesta"], ["Pop", "Rock", "Reggaetón", "Latino"]
 
 with st.expander("🎛️ Filtros"):
+    # Corregido de opciones= a options= para solucionar el TypeError anterior
     filtro_modo = st.pills("👥 Modo:", options=modos_fijos, default=modos_fijos, selection_mode="multi")
     filtro_genero = st.pills("🎸 Género:", options=generos_fijos, default=generos_fijos, selection_mode="multi")
 
