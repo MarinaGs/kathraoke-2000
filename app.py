@@ -15,7 +15,7 @@ st.markdown("""
     @keyframes gradientBG { 0% { background-position:0% 50%; } 50% { background-position:100% 50%; } 100% { background-position:0% 50%; } }
     h1 { color: #1a0066 !important; text-align: center !important; font-size: 24px !important; margin-top: -40px; }
     
-    /* Forzar color morado constante en el título del expander y textos generales */
+    /* Títulos generales y del expansor constantes en morado */
     div[data-testid="stWidgetLabel"] p, label, .stMarkdown p,
     div[data-testid="stExpander"] details summary, div[data-testid="stExpander"] details[open] summary p { 
         color: #1a0066 !important; 
@@ -23,62 +23,61 @@ st.markdown("""
         font-family: 'Courier New', monospace !important;
     }
     
-    /* Contenedor del expansor estable */
+    /* Contenedor del expansor limpio */
     div[data-testid="stExpander"] { background: rgba(255, 255, 255, 0.6) !important; border: 1px solid #b3ccff !important; border-radius: 12px !important; }
     div[data-testid="stExpander"] details summary p { display: inline-block !important; }
     
-    /* COMPONENTE CHECKBOX REESTRUCTURADO */
+    /* -------------------------------------------------------------
+       REESCRITURA COMPLETA DE CHECKBOXES (SIN PUNTOS NI FONDOS AZULES)
+       ------------------------------------------------------------- */
+    
+    /* Forzar limpieza absoluta de fondos y bordes en el contenedor */
     div[data-testid="stCheckbox"] {
-        background-color: transparent !important; /* Eliminado el fondo lila/azul de las palabras */
+        background-color: transparent !important;
+        background: transparent !important;
+        border: none !important;
         padding: 4px 0px !important;
-        border: none !important; /* Sin bordes adicionales en el texto */
-        display: inline-flex !important;
-        align-items: center !important;
     }
 
-    /* Texto de las opciones del filtro sin fondo */
+    /* Texto de las palabras (Solitario, Dúo, etc.) totalmente limpio */
     div[data-testid="stCheckbox"] p {
         color: #1a0066 !important; 
         font-weight: bold !important; 
-        background: none !important;
-        padding-left: 4px !important;
+        background-color: transparent !important;
+        background: transparent !important;
+        padding-left: 6px !important;
+        margin: 0 !important;
     }
 
-    /* Ocultar el tick nativo o imágenes superpuestas del sistema operativo */
-    div[data-testid="stCheckbox"] input[type="checkbox"] {
-        appearance: none !important;
-        -webkit-appearance: none !important;
+    /* Evitar que aparezcan pseudo-elementos extraños o puntos debajo */
+    div[data-testid="stCheckbox"] p::after, div[data-testid="stCheckbox"] p::before {
+        content: none !important;
+        display: none !important;
     }
 
-    /* Personalización del recuadro del checkbox */
+    /* Caja del checkbox nativo de Streamlit (el cuadradito) */
     div[data-testid="stCheckbox"] span[data-baseweb="checkbox"] > div {
-        border-radius: 6px !important;
-        border: 2px solid #1a0066 !important; /* Borde morado definido */
+        border-radius: 4px !important;
+        border: 2px solid #1a0066 !important; /* Borde morado */
         background-color: #ffffff !important;
-        width: 18px !important;
-        height: 18px !important;
-        transition: all 0.2s ease;
+        width: 16px !important;
+        height: 16px !important;
     }
     
-    /* Estado seleccionado: Cambia a fondo lila suave sin mostrar el icono rojo del sistema */
+    /* Cuando está seleccionado: Fondo lila suave en el cuadradito, eliminando el rojo */
     div[data-testid="stCheckbox"] input[type="checkbox"]:checked ~ div { 
         background-color: #b3ccff !important; 
         border-color: #1a0066 !important;
     }
     
-    /* Reemplazo completo del tick interior por un punto central morado limpio */
+    /* Forzar que el checkmark interno use el color morado de la aplicación */
     div[data-testid="stCheckbox"] svg {
-        display: none !important; /* Elimina por completo el vector del tick original */
+        fill: none !important;
+        stroke: #1a0066 !important; /* El tick interno ahora es morado oscuro */
+        stroke-width: 3px !important;
     }
-    div[data-testid="stCheckbox"] input[type="checkbox"]:checked ~ div::after {
-        content: "" !important;
-        display: block !important;
-        width: 8px !important;
-        height: 8px !important;
-        margin: 3px !important;
-        border-radius: 50% !important;
-        background-color: #1a0066 !important; /* Punto central morado */
-    }
+    
+    /* ------------------------------------------------------------- */
 
     .song-card { background: rgba(255, 255, 255, 0.7) !important; padding: 8px 12px !important; margin-bottom: 6px !important; border-radius: 10px !important; border: 1px solid rgba(255, 255, 255, 0.6) !important; display: flex !important; justify-content: space-between !important; align-items: center !important; }
     .song-title { color: #2b0080 !important; font-size: 14px !important; font-weight: bold !important; }
