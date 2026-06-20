@@ -14,9 +14,20 @@ st.markdown("""
     }
     @keyframes gradientBG { 0% { background-position:0% 50%; } 50% { background-position:100% 50%; } 100% { background-position:0% 50%; } }
     h1 { color: #1a0066 !important; text-align: center !important; font-size: 24px !important; margin-top: -40px; }
-    div[data-testid="stWidgetLabel"] p, label, .stMarkdown p, span { color: #1a0066 !important; font-weight: bold !important; }
+    
+    /* Selectores específicos para etiquetas de texto sin romper los checkbox */
+    div[data-testid="stWidgetLabel"] p, label, .stMarkdown p, span, div[data-testid="stCheckbox"] p { 
+        color: #1a0066 !important; 
+        font-weight: bold !important; 
+        font-family: 'Courier New', monospace !important;
+    }
+    
     div[data-testid="stExpander"] { background: rgba(255, 255, 255, 0.6) !important; border: 1px solid #b3ccff !important; border-radius: 12px !important; }
-    div[data-testid="stCheckbox"] input[type="checkbox"]:checked ~ div, div[data-testid="stCheckbox"] span[data-baseweb="checkbox"] > div { background-color: #1a0066 !important; border-color: #1a0066 !important; }
+    
+    /* Corrección del color del checkbox seleccionado */
+    div[data-testid="stCheckbox"] input[type="checkbox"]:checked ~ div { background-color: #1a0066 !important; border-color: #1a0066 !important; }
+    span[data-baseweb="checkbox"] > div { border-color: #1a0066 !important; }
+
     .song-card { background: rgba(255, 255, 255, 0.7) !important; padding: 8px 12px !important; margin-bottom: 6px !important; border-radius: 10px !important; border: 1px solid rgba(255, 255, 255, 0.6) !important; display: flex !important; justify-content: space-between !important; align-items: center !important; }
     .song-title { color: #2b0080 !important; font-size: 14px !important; font-weight: bold !important; }
     .song-artist { color: #555555 !important; font-size: 12px !important; }
@@ -49,7 +60,7 @@ with st.expander("🎛️ Filtros"):
     st.write("👥 **Modo:**")
     filtro_modo = [m for m, col in zip(modos_fijos, st.columns(3)) if col.checkbox(m, value=True, key=f"m_{m}")]
     st.write("🎸 **Género:**")
-    filtro_genero = [g for g, col in zip(generos_fijos, st.columns(2)) if col.checkbox(g, value=True, key=f"g_{g}")]
+    filtro_genero = [g for g, col in zip(generos_fijos, st.columns(4)) if col.checkbox(g, value=True, key=f"g_{g}")]
 
 st.markdown("---")
 
@@ -81,7 +92,7 @@ else:
     else:
         st.warning("No hay resultados.")
 
-# --- 5. PANEL ADMIN (CON BORRADO CORREGIDO) ---
+# --- 5. PANEL ADMIN ---
 st.markdown("---")
 with st.expander("🔒 Panel Admin"):
     if st.text_input("Contraseña:", type="password") == "admin123":
@@ -97,10 +108,7 @@ with st.expander("🔒 Panel Admin"):
         st.markdown("---")
         st.subheader("🗑️ Eliminar")
         if not df_completo.empty:
-            # Diccionario mapeando "Título - Artista" con su ID único
             opc = {f"{f['titulo']} - {f['artista']}": f['id'] for _, f in df_completo.iterrows()}
-            
-            # El selector siempre visible e independiente
             seleccionado = st.selectbox("Elige la canción a borrar:", options=list(opc.keys()))
             
             if st.button("❌ Borrar Seleccionada"):
