@@ -81,12 +81,12 @@ else:
     else:
         st.warning("No hay resultados.")
 
-# --- 5. PANEL ADMIN ---
+# --- 5. PANEL ADMIN (CON BORRADO CORREGIDO) ---
 st.markdown("---")
 with st.expander("🔒 Panel Admin"):
     if st.text_input("Contraseña:", type="password") == "admin123":
-        st.subheader("➕ Añadir (Separa con comas si son varios)")
-        t, a = st.text_input("Título:"), st.text_input("Artistas (Ej: Shakira, Alejandro Sanz):")
+        st.subheader("➕ Añadir")
+        t, a = st.text_input("Título:"), st.text_input("Artistas:")
         m, g = st.text_input("Modos:", value="Solitario"), st.text_input("Géneros:", value="Pop")
         
         if st.button("Guardar") and t and a:
@@ -97,8 +97,16 @@ with st.expander("🔒 Panel Admin"):
         st.markdown("---")
         st.subheader("🗑️ Eliminar")
         if not df_completo.empty:
+            # Diccionario mapeando "Título - Artista" con su ID único
             opc = {f"{f['titulo']} - {f['artista']}": f['id'] for _, f in df_completo.iterrows()}
-            if st.button("❌ Borrar Seleccionada") and (sel := st.selectbox("Canción:", options=list(opc.keys()))):
-                run_query("DELETE FROM canciones WHERE id = %s", (opc[sel],))
-                st.success("Borrada.")
+            
+            # El selector siempre visible e independiente
+            seleccionado = st.selectbox("Elige la canción a borrar:", options=list(opc.keys()))
+            
+            if st.button("❌ Borrar Seleccionada"):
+                id_borrar = opc[seleccionado]
+                run_query("DELETE FROM canciones WHERE id = %s", (id_borrar,))
+                st.success("Canción eliminada correctamente.")
                 st.rerun()
+        else:
+            st.text("No hay canciones para borrar.")
