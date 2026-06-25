@@ -107,11 +107,12 @@ def run_query(query, params=(), is_select=False):
             conn.commit()
 
 run_query("CREATE TABLE IF NOT EXISTS canciones (id SERIAL PRIMARY KEY, titulo TEXT, artista TEXT, modo TEXT, genero TEXT)")
-data, cols = run_query("SELECT * FROM canciones", is_select=True)
+
+# Cambio clave: Se añade ORDER BY titulo ASC para ordenar alfabéticamente por nombre de canción
+data, cols = run_query("SELECT * FROM canciones ORDER BY titulo ASC", is_select=True)
 df_completo = pd.DataFrame(data, columns=cols)
 
 # --- 3. EXTRACCIÓN DINÁMICA DE FILTROS ---
-# Generamos la lista de filtros leyendo directamente lo que hay guardado en la BD
 if not df_completo.empty:
     modos_existentes = sorted(list(set([m.strip() for lista in df_completo["modo"].dropna() for m in str(lista).split(",") if m.strip()])))
     generos_existentes = sorted(list(set([g.strip() for lista in df_completo["genero"].dropna() for g in str(lista).split(",") if g.strip()])))
@@ -183,6 +184,7 @@ with st.expander("🔒 Panel Admin"):
         st.markdown("---")
         st.subheader("🗑️ Eliminar")
         if not df_completo.empty:
+            # El selector de borrado también se beneficia del orden alfabético al extraerse del dataframe ordenado
             opc = {f"{f['titulo']} - {f['artista']}": f['id'] for _, f in df_completo.iterrows()}
             seleccionado = st.selectbox("Elige la canción a borrar:", options=list(opc.keys()))
             
