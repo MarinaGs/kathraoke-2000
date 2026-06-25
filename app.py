@@ -53,7 +53,6 @@ st.markdown("""
         transition: background-color 0.2s ease, color 0.2s ease !important;
     }
     
-    /* 1. Control de píldoras NO seleccionadas y sus sub-elementos internos */
     div[data-testid="stPills"] button[aria-selected="false"],
     div[data-testid="stPills"] button[aria-selected="false"] *,
     div[data-testid="stPills"] button[aria-selected="false"]:hover,
@@ -66,7 +65,6 @@ st.markdown("""
         border: 1px solid #ff99cc !important;
     }
     
-    /* 2. Control de píldoras SI seleccionadas y sus sub-elementos internos */
     div[data-testid="stPills"] button[aria-selected="true"],
     div[data-testid="stPills"] button[aria-selected="true"] *,
     div[data-testid="stPills"] button[aria-selected="true"]:hover,
@@ -80,7 +78,6 @@ st.markdown("""
         box-shadow: 0px 2px 5px rgba(26,0,102,0.2) !important;
     }
 
-    /* Eliminar cajas de sombras oscuras residuales de Streamlit */
     div[data-testid="stPills"] button:focus-visible, 
     div[data-testid="stPills"] button div {
         box-shadow: none !important;
@@ -113,17 +110,24 @@ run_query("CREATE TABLE IF NOT EXISTS canciones (id SERIAL PRIMARY KEY, titulo T
 data, cols = run_query("SELECT * FROM canciones", is_select=True)
 df_completo = pd.DataFrame(data, columns=cols)
 
-# --- 3. BUSCADOR Y FILTROS ---
+# --- 3. EXTRACCIÓN DINÁMICA DE FILTROS ---
+# Generamos la lista de filtros leyendo directamente lo que hay guardado en la BD
+if not df_completo.empty:
+    modos_existentes = sorted(list(set([m.strip() for lista in df_completo["modo"].dropna() for m in str(lista).split(",") if m.strip()])))
+    generos_existentes = sorted(list(set([g.strip() for lista in df_completo["genero"].dropna() for g in str(lista).split(",") if g.strip()])))
+else:
+    modos_existentes, generos_existentes = ["Solitario"], ["Pop"]
+
+# --- 4. BUSCADOR Y FILTROS ---
 buscar = st.text_input("✨ Busca tu temazo, artista o cantante:", placeholder="Ej: Britney, Shakira, Estopa...")
-modos_fijos, generos_fijos = ["Solitario", "Dúo", "Fiesta"], ["Pop", "Rock", "Reggaetón", "Latino"]
 
 with st.expander("🎛️ Filtros"):
-    filtro_modo = st.pills("👥 Modo:", options=modos_fijos, default=modos_fijos, selection_mode="multi")
-    filtro_genero = st.pills("🎸 Género:", options=generos_fijos, default=generos_fijos, selection_mode="multi")
+    filtro_modo = st.pills("👥 Modo:", options=modos_existentes, default=modos_existentes, selection_mode="multi")
+    filtro_genero = st.pills("🎸 Género:", options=generos_existentes, default=generos_existentes, selection_mode="multi")
 
 st.markdown("---")
 
-# --- 4. LISTA DE CANCIONES ---
+# --- 5. LISTA DE CANCIONES ---
 if df_completo.empty:
     st.info("La lista está vacía.")
 else:
@@ -154,22 +158,27 @@ else:
     else:
         st.warning("No hay resultados.")
 
-# --- 5. PANEL ADMIN ---
+# --- 6. PANEL ADMIN ---
 st.markdown("---")
 with st.expander("🔒 Panel Admin"):
     if st.text_input("Contraseña:", type="password") == "admin123":
         st.subheader("➕ Añadir")
-        t = st.text_input("Título:")
-        a = st.text_input("Artistas:")
-        m = st.text_input("Modos:", value="Solitario")
-        g = st.text_input("Géneros:", value="Pop")
         
-        if st.button("Guardar") and t and a:
-            # Uso de la consulta parametrizada segura para escapar caracteres como comillas o acentos
-            query_insert = "INSERT INTO canciones (titulo, artista, modo, genero) VALUES (%s, %s, %s, %s)"
-            run_query(query_insert, (t.strip(), a.strip(), m.strip(), g.strip()))
-            st.success("¡Añadida!")
-            st.rerun()
+        with st.form("form_anadir_cancion", clear_on_submit=True):
+            t = st.text_input("Título:")
+            a = st.text_input("Artistas:")
+            m = st.text_input("Modos:", value="Solitario")
+            g = st.text_input("Géneros:", value="Pop")
+            
+            enviado = st.form_submit_button("Guardar Canción")
+            
+            if enviado and t and a:
+                query_insert = "INSERT INTO canciones (titulo, artista, modo, genero) VALUES (%s, %s, %s, %s)"
+                run_query(query_insert, (t.strip(), a.strip(), m.strip(), g.strip()))
+                st.success(f"¡Añadida con éxito: {t}!")
+                st.rerun()
+            elif enviado:
+                st.error("Por favor, rellena al menos el Título y el Artista.")
             
         st.markdown("---")
         st.subheader("🗑️ Eliminar")
