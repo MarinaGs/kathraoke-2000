@@ -46,34 +46,45 @@ st.markdown("""
     }
     div[data-testid="stExpander"] svg { fill: #1a0066 !important; }
 
-    /* REDISEÑO TOTAL Y AISLAMIENTO DE ST.PILLS */
+    /* CONTROL TOTAL AGRESIVO DE ST.PILLS (ANTI-BOTÓN NEGRO EN MÓVIL) */
     div[data-testid="stPills"] button {
         font-family: 'Courier New', monospace !important;
         font-weight: bold !important;
         transition: background-color 0.2s ease, color 0.2s ease !important;
     }
     
-    /* 1. Píldora NO seleccionada (Estado Base y todos los focos posibles en móvil) */
+    /* 1. Control de píldoras NO seleccionadas y sus sub-elementos internos */
     div[data-testid="stPills"] button[aria-selected="false"],
+    div[data-testid="stPills"] button[aria-selected="false"] *,
     div[data-testid="stPills"] button[aria-selected="false"]:hover,
     div[data-testid="stPills"] button[aria-selected="false"]:focus,
     div[data-testid="stPills"] button[aria-selected="false"]:active,
     div[data-testid="stPills"] button[aria-selected="false"]:focus-visible {
         background-color: rgba(255, 255, 255, 0.7) !important;
+        background: rgba(255, 255, 255, 0.7) !important;
         color: #1a0066 !important;
         border: 1px solid #ff99cc !important;
     }
     
-    /* 2. Píldora SI seleccionada (Estado Activo y todos los focos posibles en móvil) */
+    /* 2. Control de píldoras SI seleccionadas y sus sub-elementos internos */
     div[data-testid="stPills"] button[aria-selected="true"],
+    div[data-testid="stPills"] button[aria-selected="true"] *,
     div[data-testid="stPills"] button[aria-selected="true"]:hover,
     div[data-testid="stPills"] button[aria-selected="true"]:focus,
     div[data-testid="stPills"] button[aria-selected="true"]:active,
     div[data-testid="stPills"] button[aria-selected="true"]:focus-visible {
         background-color: #1a0066 !important;
+        background: #1a0066 !important;
         color: #ffffff !important;
         border: 1px solid #1a0066 !important;
         box-shadow: 0px 2px 5px rgba(26,0,102,0.2) !important;
+    }
+
+    /* Eliminar cajas de sombras oscuras residuales de Streamlit */
+    div[data-testid="stPills"] button:focus-visible, 
+    div[data-testid="stPills"] button div {
+        box-shadow: none !important;
+        background-color: transparent !important;
     }
 
     /* TARJETAS DE CANCIONES Y BUSCADOR */
@@ -107,7 +118,6 @@ buscar = st.text_input("✨ Busca tu temazo, artista o cantante:", placeholder="
 modos_fijos, generos_fijos = ["Solitario", "Dúo", "Fiesta"], ["Pop", "Rock", "Reggaetón", "Latino"]
 
 with st.expander("🎛️ Filtros"):
-    # Corregido de opciones= a options= para solucionar el TypeError anterior
     filtro_modo = st.pills("👥 Modo:", options=modos_fijos, default=modos_fijos, selection_mode="multi")
     filtro_genero = st.pills("🎸 Género:", options=generos_fijos, default=generos_fijos, selection_mode="multi")
 
@@ -149,11 +159,15 @@ st.markdown("---")
 with st.expander("🔒 Panel Admin"):
     if st.text_input("Contraseña:", type="password") == "admin123":
         st.subheader("➕ Añadir")
-        t, a = st.text_input("Título:"), st.text_input("Artistas:")
-        m, g = st.text_input("Modos:", value="Solitario"), st.text_input("Géneros:", value="Pop")
+        t = st.text_input("Título:")
+        a = st.text_input("Artistas:")
+        m = st.text_input("Modos:", value="Solitario")
+        g = st.text_input("Géneros:", value="Pop")
         
         if st.button("Guardar") and t and a:
-            run_query("INSERT INTO canciones (titulo, artista, modo, genero) VALUES (%s,%s,%s,%s)", (t, a, m, g))
+            # Uso de la consulta parametrizada segura para escapar caracteres como comillas o acentos
+            query_insert = "INSERT INTO canciones (titulo, artista, modo, genero) VALUES (%s, %s, %s, %s)"
+            run_query(query_insert, (t.strip(), a.strip(), m.strip(), g.strip()))
             st.success("¡Añadida!")
             st.rerun()
             
